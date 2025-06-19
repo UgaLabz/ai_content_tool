@@ -1,0 +1,19 @@
+name: mistral
+backend: llama
+parameters:
+  model: mistral-7b-instruct-v0.2.Q4_K_M.gguf
+  temperature: 0.7
+  top_k: 40
+  top_p: 0.95
+  mmap: true
+  f16: true
+  threads: 8
+  batch: 512
+  context_size: 8192
+  gpu_layers: 35
+
+template:
+  chat: |
+    <s>[INST] {{.System}} {{.Input}} [/INST]
+  completion: |
+    {{.Input}}

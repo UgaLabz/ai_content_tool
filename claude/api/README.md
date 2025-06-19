@@ -56,6 +56,29 @@ ollama serve
 
 For detailed setup: `./scripts/setup-lmstudio.sh`
 
+### Running LocalAI (OpenAI-Compatible Server)
+
+```bash
+# Using Docker (recommended)
+cd docker/localai
+docker-compose up -d
+
+# Check health
+curl http://localhost:8080/readyz
+
+# List available models
+curl http://localhost:8080/v1/models
+```
+
+LocalAI supports:
+- Text generation (OpenAI-compatible)
+- Image generation (Stable Diffusion)
+- Speech synthesis (TTS)
+- Speech recognition (Whisper)
+- Embeddings generation
+
+For detailed setup: `./scripts/setup-localai.sh`
+
 ### Development
 
 ```bash

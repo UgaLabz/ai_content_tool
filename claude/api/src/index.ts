@@ -6,6 +6,7 @@ import rateLimit from '@fastify/rate-limit';
 import { logger } from './utils/logger';
 import { OllamaService } from './services/local/ollama/OllamaService';
 import { LMStudioService } from './services/local/lmstudio/LMStudioService';
+import { LocalAIService } from './services/local/localai/LocalAIService';
 import { HybridOrchestrator } from './services/hybrid/HybridOrchestrator';
 import { setupRoutes } from './routes';
 
@@ -64,6 +65,22 @@ async function buildServer() {
     logger.info('LM Studio service registered successfully');
   } catch (error) {
     logger.warn({ error }, 'Failed to initialize LM Studio service');
+  }
+  
+  // Initialize LocalAI service
+  const localAIService = new LocalAIService({
+    baseUrl: process.env.LOCALAI_HOST || 'http://localhost',
+    port: parseInt(process.env.LOCALAI_PORT || '8080', 10),
+    apiKey: process.env.LOCALAI_API_KEY || 'sk-localai-dummy',
+    defaultModel: process.env.LOCALAI_DEFAULT_MODEL || 'llama3'
+  });
+  
+  try {
+    await localAIService.initialize();
+    orchestrator.registerProvider(localAIService);
+    logger.info('LocalAI service registered successfully');
+  } catch (error) {
+    logger.warn({ error }, 'Failed to initialize LocalAI service');
   }
   
   server.decorate('orchestrator', orchestrator);

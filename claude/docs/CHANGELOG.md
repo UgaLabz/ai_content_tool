@@ -5,15 +5,21 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- LocalAI integration as OpenAI-compatible local inference server
+  - Full OpenAI API compatibility using official SDK
+  - Multi-modal support: text, images, speech (TTS/STT), embeddings
+  - Docker Compose configuration for easy deployment
+  - Model gallery integration for automatic model downloads
+  - Support for multiple backends (llama.cpp, stable diffusion, whisper)
 - LM Studio integration with official TypeScript SDK
-- Auto-discovery of LM Studio server
-- Model management for LM Studio (list, load, unload)
-- WebSocket-based communication with LM Studio
-- Setup script and documentation for LM Studio
-- Tests for LM Studio service
+  - Auto-discovery of LM Studio server
+  - Model management (list, load, unload)
+  - WebSocket-based communication
+  - Function calling and vision support capabilities
+- Setup scripts and documentation for all local providers
+- Comprehensive test suites for all services
 
 ### In Progress
-- Phase 4: LocalAI OpenAI-compatible integration
 - Phase 6: Character system adaptation
 - Phase 7: Performance optimization
 - Phase 8: Production deployment

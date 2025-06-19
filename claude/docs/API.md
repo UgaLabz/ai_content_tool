@@ -261,9 +261,68 @@ Default rate limits:
 - 100 requests per minute per IP
 - Streaming endpoints count as 1 request
 
-## WebSocket Support (Coming Soon)
+## Multi-Modal Endpoints (LocalAI)
 
-Future support for persistent WebSocket connections for real-time chat.
+When using LocalAI provider, additional multi-modal capabilities are available:
+
+### Image Generation
+```
+POST /api/generate/image
+{
+  "prompt": "A beautiful sunset over mountains",
+  "provider": "LocalAI",
+  "options": {
+    "model": "stablediffusion",
+    "size": "512x512",
+    "n": 1
+  }
+}
+```
+
+### Text-to-Speech
+```
+POST /api/generate/speech
+{
+  "text": "Hello, this is a test",
+  "provider": "LocalAI",
+  "options": {
+    "model": "tts-1",
+    "voice": "alloy",
+    "speed": 1.0
+  }
+}
+```
+
+### Speech-to-Text
+```
+POST /api/transcribe/audio
+{
+  "audio": "<base64-encoded-audio>",
+  "provider": "LocalAI",
+  "options": {
+    "model": "whisper-1",
+    "language": "en"
+  }
+}
+```
+
+### Embeddings
+```
+POST /api/generate/embeddings
+{
+  "texts": ["Hello world", "How are you?"],
+  "provider": "LocalAI",
+  "options": {
+    "model": "text-embedding-ada-002"
+  }
+}
+```
+
+## WebSocket Support
+
+- LM Studio: Native WebSocket support for real-time streaming
+- LocalAI: REST API with SSE streaming
+- Ollama: REST API with chunked streaming
 
 ## SDK Examples
 
