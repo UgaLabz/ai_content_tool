@@ -360,6 +360,85 @@ Get comprehensive intelligence report on system performance and recommendations.
 }
 ```
 
+## Configuration Management
+
+### GET /api/config
+Get current orchestrator configuration.
+
+**Response:**
+```json
+{
+  "version": "1.0",
+  "providers": [...],
+  "costLimits": {...},
+  "performanceThresholds": {...},
+  "privacySettings": {...},
+  "routingRules": [...]
+}
+```
+
+### PUT /api/config
+Update orchestrator configuration.
+
+**Request:**
+```json
+{
+  "costLimits": {
+    "maxCostPerRequest": 2.0
+  },
+  "privacySettings": {
+    "mode": "strict"
+  }
+}
+```
+
+### GET /api/config/rules
+Get all routing rules.
+
+### POST /api/config/rules
+Add a new routing rule.
+
+**Request:**
+```json
+{
+  "id": "custom-rule",
+  "name": "My Custom Rule",
+  "priority": 80,
+  "enabled": true,
+  "conditions": {
+    "taskType": "code",
+    "complexity": { "min": 5, "max": 8 }
+  },
+  "actions": {
+    "preferredProvider": "Ollama",
+    "modelSizePreference": "medium"
+  }
+}
+```
+
+### PUT /api/config/rules/:id
+Update an existing routing rule.
+
+### DELETE /api/config/rules/:id
+Delete a routing rule.
+
+### GET /api/config/providers
+Get provider preferences.
+
+### PUT /api/config/providers/:name
+Update provider preference.
+
+**Request:**
+```json
+{
+  "priority": 90,
+  "enabled": true,
+  "conditions": {
+    "complexityRange": { "min": 1, "max": 7 }
+  }
+}
+```
+
 ## WebSocket Support
 
 - LM Studio: Native WebSocket support for real-time streaming

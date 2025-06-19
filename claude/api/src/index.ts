@@ -7,7 +7,7 @@ import { logger } from './utils/logger';
 import { OllamaService } from './services/local/ollama/OllamaService';
 import { LMStudioService } from './services/local/lmstudio/LMStudioService';
 import { LocalAIService } from './services/local/localai/LocalAIService';
-import { IntelligentOrchestrator } from './services/hybrid/IntelligentOrchestrator';
+import { ConfigurableOrchestrator } from './services/hybrid/ConfigurableOrchestrator';
 import { setupRoutes } from './routes';
 
 const server = Fastify({
@@ -33,11 +33,14 @@ async function buildServer() {
     timeWindow: '1 minute'
   });
   
-  const orchestrator = new IntelligentOrchestrator({
+  const orchestrator = new ConfigurableOrchestrator({
     fallbackEnabled: true,
     privacyMode: process.env.PRIVACY_MODE === 'true',
     intelligenceEnabled: process.env.DISABLE_INTELLIGENCE !== 'true',
     resourceMonitoring: process.env.ENABLE_RESOURCE_MONITORING !== 'false',
+    configPath: process.env.CONFIG_PATH,
+    autoReload: process.env.CONFIG_AUTO_RELOAD !== 'false',
+    reloadInterval: process.env.CONFIG_RELOAD_INTERVAL ? parseInt(process.env.CONFIG_RELOAD_INTERVAL, 10) : 60000,
     costConstraints: {
       maxCostPerRequest: process.env.MAX_COST_PER_REQUEST ? parseFloat(process.env.MAX_COST_PER_REQUEST) : undefined,
       preferFreeProviders: process.env.PREFER_FREE_PROVIDERS === 'true',
@@ -46,6 +49,9 @@ async function buildServer() {
       maxLatency: process.env.MAX_LATENCY ? parseInt(process.env.MAX_LATENCY, 10) : undefined,
     },
   });
+  
+  // Initialize orchestrator with configuration
+  await orchestrator.initialize();
   
   const ollamaService = new OllamaService({
     host: process.env.OLLAMA_HOST,
@@ -131,7 +137,7 @@ async function start() {
     // Graceful shutdown
     const shutdown = async () => {
       logger.info('Shutting down server...');
-      const orchestrator = (server as any).orchestrator as IntelligentOrchestrator;
+      const orchestrator = (server as any).orchestrator as ConfigurableOrchestrator;
       if (orchestrator && orchestrator.shutdown) {
         orchestrator.shutdown();
       }
