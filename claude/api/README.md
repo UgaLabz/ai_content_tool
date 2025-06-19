@@ -6,6 +6,7 @@ REST API service for the AI-powered content generation platform with support for
 
 - ✅ Hybrid AI architecture (local + cloud providers)
 - ✅ Ollama integration for local models
+- ✅ LM Studio support with TypeScript SDK
 - ✅ Intelligent routing and fallback mechanisms
 - ✅ Streaming response support
 - ✅ Provider health monitoring and metrics
@@ -44,6 +45,16 @@ ollama pull llama3.1:8b
 # Start Ollama server (runs on port 11434 by default)
 ollama serve
 ```
+
+### Running LM Studio (Local LLM with GUI)
+
+1. Download LM Studio from https://lmstudio.ai/
+2. Install and launch the application
+3. Download models from the Browse tab (GGUF format)
+4. Start the local server from the Local Server tab
+5. Default WebSocket port is 1234
+
+For detailed setup: `./scripts/setup-lmstudio.sh`
 
 ### Development
 

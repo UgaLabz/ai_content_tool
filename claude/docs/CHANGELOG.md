@@ -5,24 +5,15 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
-- Comprehensive Local LLM Implementation Plan documenting 8-phase integration strategy
-- Support for multiple local LLM runtimes (Ollama, LM Studio, LocalAI)
-- Hybrid orchestrator design for intelligent routing between local and cloud AI services
-- Detailed hardware requirements and model comparison matrix
-- Performance optimization strategies including quantization and caching
-- Character consistency engine adaptations for local models
+- LM Studio integration with official TypeScript SDK
+- Auto-discovery of LM Studio server
+- Model management for LM Studio (list, load, unload)
+- WebSocket-based communication with LM Studio
+- Setup script and documentation for LM Studio
+- Tests for LM Studio service
 
-### Changed
-- Updated project architecture to support hybrid AI approach
-- Enhanced README with local LLM features and configuration
-- Expanded ARCHITECTURE.md with service layer design and orchestrator flow
-
-### Planned
-- Phase 1: Foundation setup and environment configuration
-- Phase 2: Ollama integration with TypeScript
-- Phase 3: LM Studio SDK implementation
+### In Progress
 - Phase 4: LocalAI OpenAI-compatible integration
-- Phase 5: Hybrid orchestrator development
 - Phase 6: Character system adaptation
 - Phase 7: Performance optimization
 - Phase 8: Production deployment

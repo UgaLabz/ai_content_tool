@@ -176,6 +176,19 @@ Get provider information and health status.
         "failedRequests": 20,
         "lastUsed": "2025-01-19T12:00:00.000Z"
       }
+    },
+    {
+      "name": "LMStudio",
+      "type": "local",
+      "healthy": true,
+      "latency": 52,
+      "metrics": {
+        "averageLatency": 1456,
+        "successRate": 0.96,
+        "totalRequests": 500,
+        "failedRequests": 20,
+        "lastUsed": "2025-01-19T12:00:00.000Z"
+      }
     }
   ]
 }

@@ -5,6 +5,7 @@ import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import { logger } from './utils/logger';
 import { OllamaService } from './services/local/ollama/OllamaService';
+import { LMStudioService } from './services/local/lmstudio/LMStudioService';
 import { HybridOrchestrator } from './services/hybrid/HybridOrchestrator';
 import { setupRoutes } from './routes';
 
@@ -48,6 +49,21 @@ async function buildServer() {
     logger.info('Ollama service registered successfully');
   } catch (error) {
     logger.warn({ error }, 'Failed to initialize Ollama service');
+  }
+  
+  // Initialize LM Studio service
+  const lmStudioService = new LMStudioService({
+    baseUrl: process.env.LMSTUDIO_HOST || 'ws://localhost',
+    port: parseInt(process.env.LMSTUDIO_PORT || '1234', 10),
+    defaultModel: process.env.LMSTUDIO_DEFAULT_MODEL
+  });
+  
+  try {
+    await lmStudioService.initialize();
+    orchestrator.registerProvider(lmStudioService);
+    logger.info('LM Studio service registered successfully');
+  } catch (error) {
+    logger.warn({ error }, 'Failed to initialize LM Studio service');
   }
   
   server.decorate('orchestrator', orchestrator);
