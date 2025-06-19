@@ -7,7 +7,7 @@ import { logger } from './utils/logger';
 import { OllamaService } from './services/local/ollama/OllamaService';
 import { LMStudioService } from './services/local/lmstudio/LMStudioService';
 import { LocalAIService } from './services/local/localai/LocalAIService';
-import { HybridOrchestrator } from './services/hybrid/HybridOrchestrator';
+import { IntelligentOrchestrator } from './services/hybrid/IntelligentOrchestrator';
 import { setupRoutes } from './routes';
 
 const server = Fastify({
@@ -33,10 +33,18 @@ async function buildServer() {
     timeWindow: '1 minute'
   });
   
-  const orchestrator = new HybridOrchestrator({
+  const orchestrator = new IntelligentOrchestrator({
     fallbackEnabled: true,
-    loadBalancing: 'least-latency',
-    privacyMode: process.env.PRIVACY_MODE === 'true'
+    privacyMode: process.env.PRIVACY_MODE === 'true',
+    intelligenceEnabled: process.env.DISABLE_INTELLIGENCE !== 'true',
+    resourceMonitoring: process.env.ENABLE_RESOURCE_MONITORING !== 'false',
+    costConstraints: {
+      maxCostPerRequest: process.env.MAX_COST_PER_REQUEST ? parseFloat(process.env.MAX_COST_PER_REQUEST) : undefined,
+      preferFreeProviders: process.env.PREFER_FREE_PROVIDERS === 'true',
+    },
+    performanceTargets: {
+      maxLatency: process.env.MAX_LATENCY ? parseInt(process.env.MAX_LATENCY, 10) : undefined,
+    },
   });
   
   const ollamaService = new OllamaService({
@@ -95,6 +103,17 @@ async function buildServer() {
     };
   });
   
+  // Intelligence report endpoint
+  server.get('/api/intelligence/report', async (request, reply) => {
+    try {
+      const report = await orchestrator.getIntelligenceReport();
+      return report;
+    } catch (error) {
+      logger.error({ error }, 'Failed to generate intelligence report');
+      return reply.code(500).send({ error: 'Failed to generate report' });
+    }
+  });
+  
   return server;
 }
 
@@ -108,6 +127,20 @@ async function start() {
     await server.listen({ port, host });
     
     logger.info(`Server started on ${host}:${port}`);
+    
+    // Graceful shutdown
+    const shutdown = async () => {
+      logger.info('Shutting down server...');
+      const orchestrator = (server as any).orchestrator as IntelligentOrchestrator;
+      if (orchestrator && orchestrator.shutdown) {
+        orchestrator.shutdown();
+      }
+      await server.close();
+      process.exit(0);
+    };
+    
+    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
   } catch (error) {
     logger.error(error, 'Failed to start server');
     process.exit(1);

@@ -18,6 +18,14 @@ All notable changes to this project will be documented in this file.
   - Function calling and vision support capabilities
 - Setup scripts and documentation for all local providers
 - Comprehensive test suites for all services
+- Intelligence Layer for Phase 5: Hybrid Orchestrator
+  - Task complexity analyzer with multi-factor scoring
+  - Model capability matcher for optimal provider selection
+  - Cost optimization engine with budget tracking
+  - Performance predictor with historical learning
+  - Real-time resource monitoring (CPU, memory, GPU)
+  - Intelligent routing based on task requirements
+  - Intelligence report endpoint at /api/intelligence/report
 
 ### In Progress
 - Phase 6: Character system adaptation

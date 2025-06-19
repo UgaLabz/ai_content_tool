@@ -318,6 +318,48 @@ POST /api/generate/embeddings
 }
 ```
 
+## Intelligence Layer
+
+### GET /api/intelligence/report
+Get comprehensive intelligence report on system performance and recommendations.
+
+**Response:**
+```json
+{
+  "taskAnalysis": {
+    "recentComplexities": [3, 5, 7],
+    "averageComplexity": 5,
+    "taskTypes": {
+      "chat": 45,
+      "code": 20,
+      "analysis": 35
+    }
+  },
+  "performance": {
+    "avgLatency": 1234,
+    "minLatency": 500,
+    "maxLatency": 3000,
+    "successRate": 0.98,
+    "providers": ["Ollama", "LMStudio", "LocalAI"]
+  },
+  "costs": {
+    "Ollama": { "daily": 0.05, "monthly": 1.50 },
+    "LocalAI": { "daily": 0.08, "monthly": 2.40 }
+  },
+  "resources": {
+    "current": {
+      "cpu": { "usage": 45.2, "cores": 8 },
+      "memory": { "usage": 62.5, "total": 16384000000 }
+    },
+    "recommendation": "local"
+  },
+  "recommendations": [
+    "Consider using cloud providers during peak hours",
+    "Enable GPU acceleration for faster inference"
+  ]
+}
+```
+
 ## WebSocket Support
 
 - LM Studio: Native WebSocket support for real-time streaming
