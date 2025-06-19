@@ -1,0 +1,3 @@
+So I want to use VS Code and chatgpt 4 and/or Sora and/or other quality "AI" image and video genrators to be a creator enviroment for a long running charecter driven content generator.  Content will be user prompt driven and auto generated. What are my options to do this?
+
+produce a detailed plan to implement this idea. Include options that you think would possible and useful. I want a api or cli or something where I have a console chat to interact in natural language with all the features we develope for this idea. Put you plan in a file called /home/rese/Documents/Luddite/gpt/docs/plans/gpt_plan.md
