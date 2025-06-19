@@ -1,4 +1,6 @@
-import { LMStudioClient } from '@lmstudio/sdk';
+import { LMStudioClient, Tool, ActResult } from '@lmstudio/sdk';
+// TODO: Import FileHandle when implementing image support
+// import { FileHandle } from '@lmstudio/sdk';
 import { LocalLLMService } from '../base/LocalLLMService';
 import { 
   ModelInfo, 
@@ -43,7 +45,7 @@ export class LMStudioService extends LocalLLMService {
       capabilities: {
         contextWindow: 4096,
         maxOutputTokens: 4096,
-        supportsFunctions: false,
+        supportsFunctions: true,
         supportsVision: false,
         supportsStreaming: true
       }
@@ -81,6 +83,11 @@ export class LMStudioService extends LocalLLMService {
     const validatedOptions = this.validateOptions(options);
     
     try {
+      // TODO: Add support for image input when using vision models
+      // - Check if model supports vision using checkModelSupportsVision()
+      // - If vision is supported and images are provided in options, use client.files.prepareImage()
+      // - Include images in the message array
+      
       const prediction = this.currentModel.respond([
         ...(validatedOptions.systemPrompt 
           ? [{ role: 'system', content: validatedOptions.systemPrompt }] 
@@ -115,6 +122,11 @@ export class LMStudioService extends LocalLLMService {
     const validatedOptions = this.validateOptions(options);
     
     try {
+      // TODO: Add support for image input when using vision models
+      // - Check if model supports vision using checkModelSupportsVision()
+      // - If vision is supported and images are provided in options, use client.files.prepareImage()
+      // - Include images in the message array
+      
       const prediction = this.currentModel.respond([
         ...(validatedOptions.systemPrompt 
           ? [{ role: 'system', content: validatedOptions.systemPrompt }] 
@@ -194,6 +206,9 @@ export class LMStudioService extends LocalLLMService {
         capabilities: this.getModelCapabilities(modelId)
       };
       
+      // Update vision support based on the loaded model
+      this.modelInfo.capabilities.supportsVision = this.checkModelSupportsVision();
+      
       logger.info({ modelId }, 'LM Studio model loaded successfully');
     } catch (error) {
       logger.error({ error, modelId }, 'Failed to load LM Studio model');
@@ -208,6 +223,74 @@ export class LMStudioService extends LocalLLMService {
   }
   
   // Additional LM Studio specific methods
+  
+  /**
+   * Checks if the currently loaded model supports vision/image input
+   * @returns true if the model supports vision, false otherwise
+   */
+  checkModelSupportsVision(): boolean {
+    if (!this.currentModelId) {
+      return false;
+    }
+    
+    const modelNameLower = this.currentModelId.toLowerCase();
+    
+    // Check for common vision model indicators
+    const visionIndicators = [
+      'vision',
+      'vlm',
+      'llava',
+      'bakllava',
+      'qwen2vl',
+      'qwen2-vl',
+      'cogvlm',
+      'florence',
+      'phi-3-vision',
+      'phi3-vision',
+      'gemma-2-vision',
+      'gemma2-vision',
+      'internvl',
+      'intern-vl',
+      'minicpm-v',
+      'deepseek-vl',
+      'yi-vl'
+    ];
+    
+    return visionIndicators.some(indicator => modelNameLower.includes(indicator));
+  }
+  
+  /**
+   * TODO: Implement function calling using the .act() API
+   * This method should:
+   * 1. Accept a prompt, tools array, and options
+   * 2. Use this.currentModel.act(messages, tools, options)
+   * 3. Handle tool execution and multiple rounds of interaction
+   * 4. Return the final result
+   * 
+   * Example signature:
+   * async executeWithTools(
+   *   prompt: string, 
+   *   tools: Tool[], 
+   *   options: GenerationOptions & { onToolCall?: (tool: ToolCall) => Promise<any> }
+   * ): Promise<ActResult>
+   */
+  
+  /**
+   * TODO: Implement vision/image support
+   * This method should:
+   * 1. Accept image file paths or base64 encoded images
+   * 2. Use this.client.files.prepareImage() to create FileHandles
+   * 3. Include images in the message when calling respond()
+   * 4. Only work when checkModelSupportsVision() returns true
+   * 
+   * Example signature:
+   * async generateWithImages(
+   *   prompt: string,
+   *   images: Array<string | Buffer>,
+   *   options: GenerationOptions
+   * ): Promise<string>
+   */
+  
   async getLoadedModels(): Promise<string[]> {
     try {
       const models = await this.client.llm.listDownloadedModels();
@@ -260,16 +343,41 @@ export class LMStudioService extends LocalLLMService {
       contextWindow = 200000;
     } else if (lowerName.includes('deepseek')) {
       contextWindow = 16384;
+    } else if (lowerName.includes('qwen2')) {
+      contextWindow = 32768;
     }
     
-    const supportsVision = lowerName.includes('llava') || 
-                          lowerName.includes('bakllava') ||
-                          lowerName.includes('vision');
+    // Check for vision support based on model name
+    const visionIndicators = [
+      'vision',
+      'vlm',
+      'llava',
+      'bakllava',
+      'qwen2vl',
+      'qwen2-vl',
+      'cogvlm',
+      'florence',
+      'phi-3-vision',
+      'phi3-vision',
+      'gemma-2-vision',
+      'gemma2-vision',
+      'internvl',
+      'intern-vl',
+      'minicpm-v',
+      'deepseek-vl',
+      'yi-vl'
+    ];
+    
+    const supportsVision = visionIndicators.some(indicator => lowerName.includes(indicator));
+    
+    // Check for function calling support
+    // Most modern models support function calling via the .act() API
+    const supportsFunctions = true;
     
     return {
       contextWindow,
       maxOutputTokens: Math.min(4096, contextWindow),
-      supportsFunctions: lowerName.includes('functionary') || lowerName.includes('hermes'),
+      supportsFunctions,
       supportsVision,
       supportsStreaming: true
     };

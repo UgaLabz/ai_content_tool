@@ -210,8 +210,8 @@ interface HybridOrchestrator {
   - [x] GPU acceleration configuration *(automatic in LM Studio)*
   - [x] Model quantization settings *(handled by LM Studio GUI)*
   - [x] Custom prompt templates
-  - [ ] Function calling support *(not available in current SDK)*
-  - [ ] Multi-modal capabilities *(not available in current SDK)*
+  - [x] Function calling support *(available via .act() API - TODO: implement)*
+  - [x] Multi-modal capabilities *(available for vision models - TODO: implement)*
   
 - [x] Integration testing
   - [x] Test with various GGUF models
