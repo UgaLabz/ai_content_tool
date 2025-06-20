@@ -1,8 +1,7 @@
 import { UseFormReturn } from 'react-hook-form'
-import { Upload, User } from 'lucide-react'
+import { User } from 'lucide-react'
 import { Label } from '@/components/ui/Label'
 import { Input } from '@/components/ui/Input'
-import { Button } from '@/components/ui/Button'
 import { CharacterFormData } from '@/types/character.types'
 import { AvatarUpload } from '../AvatarUpload'
 

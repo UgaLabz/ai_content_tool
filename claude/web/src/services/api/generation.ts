@@ -28,6 +28,13 @@ class GenerationService {
     return response.data
   }
 
+  // Simplified generate method for component use
+  async generate(
+    request: Partial<GenerationRequest>
+  ): Promise<GenerationResponse> {
+    return this.generateText(request as GenerationRequest)
+  }
+
   async *generateStream(
     request: GenerationRequest
   ): AsyncGenerator<StreamChunk, void, unknown> {

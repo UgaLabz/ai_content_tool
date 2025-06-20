@@ -5,6 +5,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { cn } from '@/utils/cn'
+import { useFormPersistence } from '@/hooks/useFormPersistence'
+import { useToast } from '@/hooks/useToast'
 import { 
   CharacterFormData, 
   characterFormSchema, 
@@ -26,6 +28,7 @@ interface CharacterCreatorFormProps {
 export function CharacterCreatorForm({ onSubmit, onCancel }: CharacterCreatorFormProps) {
   const [currentStep, setCurrentStep] = useState<FormStep>('basics')
   const currentStepIndex = FORM_STEPS.indexOf(currentStep)
+  const { error: showError, success: showSuccess } = useToast()
 
   const form = useForm<CharacterFormData>({
     resolver: zodResolver(characterFormSchema),
@@ -50,6 +53,11 @@ export function CharacterCreatorForm({ onSubmit, onCancel }: CharacterCreatorFor
     },
   })
 
+  // Enable form persistence
+  const { clearSavedData } = useFormPersistence(form, 'character-creator-draft', {
+    exclude: ['avatar'], // Don't persist file URLs
+  })
+
   const handleNext = async () => {
     // Validate current step fields
     let fieldsToValidate: (keyof CharacterFormData)[] = []
@@ -71,6 +79,8 @@ export function CharacterCreatorForm({ onSubmit, onCancel }: CharacterCreatorFor
 
     if (isValid && currentStepIndex < FORM_STEPS.length - 1) {
       setCurrentStep(FORM_STEPS[currentStepIndex + 1])
+    } else if (!isValid) {
+      showError('Please fill in all required fields')
     }
   }
 
@@ -80,9 +90,21 @@ export function CharacterCreatorForm({ onSubmit, onCancel }: CharacterCreatorFor
     }
   }
 
-  const handleSubmit = form.handleSubmit((data) => {
-    onSubmit(data)
-  })
+  const handleSubmit = form.handleSubmit(
+    (data) => {
+      try {
+        onSubmit(data)
+        clearSavedData() // Clear draft after successful submission
+        showSuccess('Character created successfully!')
+      } catch (error) {
+        showError('Failed to create character. Please try again.')
+      }
+    },
+    (errors) => {
+      console.error('Form validation errors:', errors)
+      showError('Please fix the errors in the form')
+    }
+  )
 
   const renderStep = () => {
     switch (currentStep) {
