@@ -31,27 +31,41 @@ interface APICharacterProfile {
 }
 
 export function mapAPIResponseToCharacter(apiData: APICharacterProfile): Character {
+  // Ensure apiData exists
+  if (!apiData) {
+    throw new Error('Invalid character data: apiData is null or undefined');
+  }
+
+  // Log the incoming data for debugging
+  console.log('Mapping API response:', JSON.stringify(apiData, null, 2));
+
+  // Add defensive checks for nested properties
+  const personality = apiData.personality || {};
+  const voice = apiData.voice || {};
+  const background = apiData.background || {};
+  const metadata = apiData.metadata || {};
+
   return {
     id: apiData.id,
     name: apiData.name,
     avatar: apiData.avatar,
     personality: {
-      traits: apiData.personality.traits || [],
-      humor: apiData.personality.humor || 50,
-      formality: apiData.personality.formality || 50,
-      enthusiasm: apiData.personality.enthusiasm || 50,
-      empathy: apiData.personality.empathy || 50,
-      quirks: apiData.personality.quirks || [],
+      traits: personality.traits || [],
+      humor: personality.humor || 50,
+      formality: personality.formality || 50,
+      enthusiasm: personality.enthusiasm || 50,
+      empathy: personality.empathy || 50,
+      quirks: personality.quirks || [],
     },
     voice: {
-      tone: apiData.voice.tone,
-      vocabulary: apiData.voice.vocabulary,
-      sentenceStructure: apiData.voice.sentenceStructure,
-      speechPatterns: apiData.voice.speechPatterns || [],
-      languageStyle: apiData.voice.catchphrases?.join(', '),
+      tone: voice.tone || 'friendly',
+      vocabulary: voice.vocabulary || 'moderate',
+      sentenceStructure: voice.sentenceStructure || 'varied',
+      speechPatterns: voice.speechPatterns || [],
+      languageStyle: voice.catchphrases?.join(', '),
     },
-    catchphrases: apiData.voice.catchphrases || [],
-    background: apiData.background?.culturalBackground || apiData.description,
+    catchphrases: voice.catchphrases || [],
+    background: background.culturalBackground || apiData.description,
     relationships: [],
     memoryAnchors: [],
     stats: {
@@ -59,19 +73,25 @@ export function mapAPIResponseToCharacter(apiData: APICharacterProfile): Charact
       lastUsed: new Date().toISOString(),
       popularityScore: 0,
     },
-    createdAt: apiData.metadata?.createdAt 
-      ? (typeof apiData.metadata.createdAt === 'string' 
-          ? apiData.metadata.createdAt 
-          : new Date(apiData.metadata.createdAt).toISOString())
+    createdAt: metadata.createdAt 
+      ? (typeof metadata.createdAt === 'string' 
+          ? metadata.createdAt 
+          : new Date(metadata.createdAt).toISOString())
       : new Date().toISOString(),
-    updatedAt: apiData.metadata?.updatedAt
-      ? (typeof apiData.metadata.updatedAt === 'string'
-          ? apiData.metadata.updatedAt
-          : new Date(apiData.metadata.updatedAt).toISOString())
+    updatedAt: metadata.updatedAt
+      ? (typeof metadata.updatedAt === 'string'
+          ? metadata.updatedAt
+          : new Date(metadata.updatedAt).toISOString())
       : new Date().toISOString(),
   }
 }
 
 export function mapAPIResponseArray(apiData: APICharacterProfile[]): Character[] {
-  return apiData.map(mapAPIResponseToCharacter)
+  if (!apiData || !Array.isArray(apiData)) {
+    return [];
+  }
+  
+  return apiData
+    .filter(item => item != null) // Filter out null/undefined items
+    .map(mapAPIResponseToCharacter);
 }

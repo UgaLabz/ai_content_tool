@@ -1,0 +1,47 @@
+{
+  "name": "ai-content-tool",
+  "version": "1.0.0",
+  "description": "AI Content Tool - Character-based content generation system",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently --kill-others \"npm:dev:*\"",
+    "dev:api": "cd api && npm run dev",
+    "dev:web": "cd web && npm run dev",
+    "start": "npm run dev",
+    "start:api": "cd api && npm start",
+    "start:web": "cd web && npm run preview",
+    "build": "npm run build:api && npm run build:web",
+    "build:api": "cd api && npm run build",
+    "build:web": "cd web && npm run build",
+    "install:all": "npm install && cd api && npm install && cd ../web && npm install",
+    "test": "npm run test:api && npm run test:web",
+    "test:api": "cd api && npm test",
+    "test:web": "cd web && npm test",
+    "lint": "npm run lint:api && npm run lint:web",
+    "lint:api": "cd api && npm run lint",
+    "lint:web": "cd web && npm run lint",
+    "clean": "npm run clean:api && npm run clean:web",
+    "clean:api": "cd api && rm -rf node_modules dist",
+    "clean:web": "cd web && rm -rf node_modules dist",
+    "stop": "pkill -f 'vite' && pkill -f 'tsx watch' || true",
+    "restart": "npm run stop && npm run dev",
+    "logs": "npm run logs:api & npm run logs:web",
+    "logs:api": "cd api && npm run dev 2>&1 | tee ../logs/api.log",
+    "logs:web": "cd web && npm run dev 2>&1 | tee ../logs/web.log",
+    "health": "curl -s http://localhost:3000/health && echo ' - API is healthy' || echo 'API is down'",
+    "status": "ps aux | grep -E '(vite|tsx watch)' | grep -v grep || echo 'No servers running'",
+    "clean:db": "curl -X DELETE http://localhost:3000/api/characters",
+    "reset": "npm run stop && npm run clean:db && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=10.8.0"
+  },
+  "workspaces": [
+    "api",
+    "web"
+  ]
+}

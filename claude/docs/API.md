@@ -445,6 +445,104 @@ Update provider preference.
 - LocalAI: REST API with SSE streaming
 - Ollama: REST API with chunked streaming
 
+## Character Management Endpoints
+
+### List All Characters
+```http
+GET /api/characters
+```
+
+**Response:**
+```json
+[
+  {
+    "id": "character-uuid",
+    "name": "Character Name",
+    "description": "Character description",
+    "personality": { ... },
+    "background": { ... },
+    "voice": { ... },
+    "knowledge": [ ... ],
+    "metadata": { ... }
+  }
+]
+```
+
+### Get Character by ID
+```http
+GET /api/characters/:id
+```
+
+### Create Character
+```http
+POST /api/characters
+```
+
+### Update Character
+```http
+PATCH /api/characters/:id
+```
+
+### Delete Character
+```http
+DELETE /api/characters/:id
+```
+
+**Response:** 204 No Content
+
+### Delete All Characters (Development Only)
+```http
+DELETE /api/characters
+```
+
+**Response:**
+```json
+{
+  "message": "All characters deleted successfully",
+  "count": 2
+}
+```
+
+**⚠️ Warning:** This endpoint is for development purposes only. It will permanently delete all characters from the database.
+
+### Generate with Character
+```http
+POST /api/generate/character
+```
+
+**Request Body:**
+```json
+{
+  "prompt": "Your prompt here",
+  "characterId": "character-uuid",
+  "options": {
+    "temperature": 0.7,
+    "maxTokens": 1000,
+    "topP": 0.9,
+    "enforceConsistency": true,
+    "includeMemories": true,
+    "memoryCount": 5
+  }
+}
+```
+
+### Character Memory Endpoints
+
+#### Add Memory
+```http
+POST /api/characters/:id/memories
+```
+
+#### Get Memories
+```http
+GET /api/characters/:id/memories?count=10&types=interaction,observation
+```
+
+#### Search Memories
+```http
+GET /api/characters/:id/memories/search?q=search+term&minImportance=50&limit=10
+```
+
 ## SDK Examples
 
 ### JavaScript/TypeScript

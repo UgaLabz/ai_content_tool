@@ -4,16 +4,19 @@ A sophisticated content generation platform that combines multiple AI services (
 
 ## Quick Start
 
-See our [Quick Start Guide](../QUICKSTART.md) to get up and running in 5 minutes!
+### 🚀 Complete Setup Guide
+See our **[Getting Started Guide](./GETTING_STARTED.md)** for detailed setup, startup, and shutdown instructions.
 
+### ⚡ Quick Commands
 ```bash
-# Quick setup
-./scripts/setup-ollama.sh
-cd api && npm install
-npm run dev
+# Terminal 1 - Start API
+cd claude/api && npm run dev
+
+# Terminal 2 - Start Frontend
+cd claude/web && npm run dev
 ```
 
-For detailed instructions, check the [Quick Start Guide](../QUICKSTART.md).
+For detailed instructions, check the [Getting Started Guide](./GETTING_STARTED.md).
 
 ## Project Structure
 

@@ -8,6 +8,7 @@ import {
   KnowledgeDomain,
   CharacterMemory 
 } from '../models/character';
+import { serializeCharacterProfile, serializeCharacterProfiles } from '../utils/character-serializer';
 
 const characterRoutes: FastifyPluginAsync = async (fastify) => {
   const orchestrator = fastify.orchestrator as CharacterAwareOrchestrator;
@@ -103,7 +104,7 @@ const characterRoutes: FastifyPluginAsync = async (fastify) => {
   }, async (request, reply) => {
     try {
       const profile = await orchestrator.createCharacter(request.body);
-      return profile;
+      return serializeCharacterProfile(profile);
     } catch (error) {
       fastify.log.error(error);
       reply.code(400).send({ error: 'Failed to create character profile' });
@@ -126,7 +127,21 @@ const characterRoutes: FastifyPluginAsync = async (fastify) => {
   }, async (request, reply) => {
     try {
       const profiles = await orchestrator.getAllCharacters();
-      return profiles;
+      fastify.log.info({ profileCount: profiles.length }, 'Retrieved character profiles');
+      
+      // Log raw profile data
+      console.log('Raw profiles from orchestrator:', JSON.stringify(profiles, null, 2));
+      
+      if (profiles.length > 0) {
+        fastify.log.debug({ firstProfile: profiles[0] }, 'First profile data');
+      }
+      const serialized = serializeCharacterProfiles(profiles);
+      fastify.log.debug({ serializedCount: serialized.length }, 'Serialized profiles');
+      
+      // Log what we're about to return
+      console.log('About to return:', JSON.stringify(serialized, null, 2));
+      
+      return serialized;
     } catch (error) {
       fastify.log.error(error);
       reply.code(500).send({ error: 'Failed to retrieve character profiles' });
@@ -168,7 +183,7 @@ const characterRoutes: FastifyPluginAsync = async (fastify) => {
         reply.code(404).send({ error: 'Character not found' });
         return;
       }
-      return profile;
+      return serializeCharacterProfile(profile);
     } catch (error) {
       fastify.log.error(error);
       reply.code(500).send({ error: 'Failed to retrieve character profile' });
@@ -241,6 +256,41 @@ const characterRoutes: FastifyPluginAsync = async (fastify) => {
     } catch (error) {
       fastify.log.error(error);
       reply.code(400).send({ error: 'Failed to delete character profile' });
+    }
+  });
+  
+  // Delete all characters (development only)
+  fastify.delete('/characters', {
+    schema: {
+      description: 'Delete all character profiles (development only)',
+      tags: ['characters'],
+      response: {
+        200: {
+          description: 'All characters deleted successfully',
+          type: 'object',
+          properties: {
+            message: { type: 'string' },
+            count: { type: 'number' },
+          },
+        },
+      },
+    },
+  }, async (request, reply) => {
+    try {
+      const profiles = await orchestrator.getAllCharacters();
+      
+      // Delete each profile
+      for (const profile of profiles) {
+        await orchestrator.deleteCharacter(profile.id);
+      }
+      
+      return {
+        message: 'All characters deleted successfully',
+        count: profiles.length,
+      };
+    } catch (error) {
+      fastify.log.error(error);
+      reply.code(500).send({ error: 'Failed to delete all characters' });
     }
   });
   

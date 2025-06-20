@@ -56,6 +56,10 @@ A privacy-first AI content generation platform with support for local LLMs (Olla
 
 ## Quick Start
 
+### 📖 Complete Setup Guide
+
+For detailed setup, startup, and shutdown instructions, see our **[Getting Started Guide](docs/GETTING_STARTED.md)**.
+
 ### Prerequisites
 
 - Node.js 18+ (20+ recommended)
@@ -65,8 +69,6 @@ A privacy-first AI content generation platform with support for local LLMs (Olla
 - (Optional) PostgreSQL for database features
 - (Optional) Redis for caching
 - (Optional) NVIDIA GPU for better performance
-
-See [QUICKSTART.md](QUICKSTART.md) for detailed setup instructions.
 
 ### Quick Setup
 
