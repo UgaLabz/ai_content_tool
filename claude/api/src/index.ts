@@ -3,15 +3,27 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
-import { logger } from './utils/logger';
 import { OllamaService } from './services/local/ollama/OllamaService';
 import { LMStudioService } from './services/local/lmstudio/LMStudioService';
 import { LocalAIService } from './services/local/localai/LocalAIService';
-import { ConfigurableOrchestrator } from './services/hybrid/ConfigurableOrchestrator';
+import { OptimizedOrchestrator } from './services/hybrid/OptimizedOrchestrator';
 import { setupRoutes } from './routes';
+import compressionPlugin from './middleware/compression';
 
 const server = Fastify({
-  logger: logger as any,
+  logger: {
+    level: process.env.LOG_LEVEL || 'info',
+    ...(process.env.NODE_ENV !== 'production' && {
+      transport: {
+        target: 'pino-pretty',
+        options: {
+          colorize: true,
+          translateTime: 'HH:MM:ss Z',
+          ignore: 'pid,hostname',
+        },
+      }
+    })
+  },
   requestIdHeader: 'x-request-id',
   requestIdLogLabel: 'reqId',
   disableRequestLogging: false,
@@ -33,7 +45,14 @@ async function buildServer() {
     timeWindow: '1 minute'
   });
   
-  const orchestrator = new ConfigurableOrchestrator({
+  // Register compression middleware
+  await server.register(compressionPlugin, {
+    global: true,
+    threshold: 1024, // 1KB
+    encodings: ['gzip', 'deflate', 'br'],
+  });
+  
+  const orchestrator = new OptimizedOrchestrator({
     fallbackEnabled: true,
     privacyMode: process.env.PRIVACY_MODE === 'true',
     intelligenceEnabled: process.env.DISABLE_INTELLIGENCE !== 'true',
@@ -48,6 +67,12 @@ async function buildServer() {
     performanceTargets: {
       maxLatency: process.env.MAX_LATENCY ? parseInt(process.env.MAX_LATENCY, 10) : undefined,
     },
+  }, undefined, {
+    enableCaching: process.env.DISABLE_CACHING !== 'true',
+    enableBatching: process.env.ENABLE_BATCHING === 'true',
+    enablePromptOptimization: process.env.ENABLE_PROMPT_OPTIMIZATION !== 'false',
+    enableConnectionPooling: process.env.ENABLE_CONNECTION_POOLING !== 'false',
+    enablePerformanceMonitoring: process.env.ENABLE_PERFORMANCE_MONITORING !== 'false',
   });
   
   // Initialize orchestrator with configuration
@@ -61,9 +86,9 @@ async function buildServer() {
   try {
     await ollamaService.initialize();
     orchestrator.registerProvider(ollamaService);
-    logger.info('Ollama service registered successfully');
+    server.log.info('Ollama service registered successfully');
   } catch (error) {
-    logger.warn({ error }, 'Failed to initialize Ollama service');
+    server.log.warn({ error }, 'Failed to initialize Ollama service');
   }
   
   // Initialize LM Studio service
@@ -76,9 +101,9 @@ async function buildServer() {
   try {
     await lmStudioService.initialize();
     orchestrator.registerProvider(lmStudioService);
-    logger.info('LM Studio service registered successfully');
+    server.log.info('LM Studio service registered successfully');
   } catch (error) {
-    logger.warn({ error }, 'Failed to initialize LM Studio service');
+    server.log.warn({ error }, 'Failed to initialize LM Studio service');
   }
   
   // Initialize LocalAI service
@@ -92,9 +117,9 @@ async function buildServer() {
   try {
     await localAIService.initialize();
     orchestrator.registerProvider(localAIService);
-    logger.info('LocalAI service registered successfully');
+    server.log.info('LocalAI service registered successfully');
   } catch (error) {
-    logger.warn({ error }, 'Failed to initialize LocalAI service');
+    server.log.warn({ error }, 'Failed to initialize LocalAI service');
   }
   
   server.decorate('orchestrator', orchestrator);
@@ -115,8 +140,30 @@ async function buildServer() {
       const report = await orchestrator.getIntelligenceReport();
       return report;
     } catch (error) {
-      logger.error({ error }, 'Failed to generate intelligence report');
+      server.log.error({ error }, 'Failed to generate intelligence report');
       return reply.code(500).send({ error: 'Failed to generate report' });
+    }
+  });
+  
+  // Performance stats endpoint
+  server.get('/api/performance/stats', async (request, reply) => {
+    try {
+      const stats = orchestrator.getPerformanceStats();
+      return stats;
+    } catch (error) {
+      server.log.error({ error }, 'Failed to get performance stats');
+      return reply.code(500).send({ error: 'Failed to get stats' });
+    }
+  });
+  
+  // Maintenance endpoint
+  server.post('/api/maintenance', async (request, reply) => {
+    try {
+      await orchestrator.performMaintenance();
+      return { status: 'success', message: 'Maintenance completed' };
+    } catch (error) {
+      server.log.error({ error }, 'Failed to perform maintenance');
+      return reply.code(500).send({ error: 'Failed to perform maintenance' });
     }
   });
   
@@ -132,12 +179,12 @@ async function start() {
     
     await server.listen({ port, host });
     
-    logger.info(`Server started on ${host}:${port}`);
+    server.log.info(`Server started on ${host}:${port}`);
     
     // Graceful shutdown
     const shutdown = async () => {
-      logger.info('Shutting down server...');
-      const orchestrator = (server as any).orchestrator as ConfigurableOrchestrator;
+      server.log.info('Shutting down server...');
+      const orchestrator = (server as any).orchestrator as OptimizedOrchestrator;
       if (orchestrator && orchestrator.shutdown) {
         orchestrator.shutdown();
       }
@@ -148,7 +195,7 @@ async function start() {
     process.on('SIGTERM', shutdown);
     process.on('SIGINT', shutdown);
   } catch (error) {
-    logger.error(error, 'Failed to start server');
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 }

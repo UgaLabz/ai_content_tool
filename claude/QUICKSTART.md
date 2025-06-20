@@ -4,23 +4,36 @@ Get the AI Content Generator up and running in 5 minutes!
 
 ## Prerequisites
 
-- Node.js 20+ installed
+- Node.js 18+ installed (20+ recommended)
 - Git installed
 - 16GB+ RAM recommended
+- Ollama installed and running
+- (Optional) PostgreSQL if using database features
+- (Optional) Redis if using caching features
 - (Optional) NVIDIA GPU for better performance
 
-## Step 1: Clone and Setup
+## Step 1: Install Ollama
+
+```bash
+# Install Ollama (Linux/Mac)
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Start Ollama service
+sudo systemctl start ollama
+
+# Pull a model
+ollama pull llama3.1:8b
+```
+
+## Step 2: Clone and Setup
 
 ```bash
 # Clone the repository
 git clone https://github.com/YourRepo/ai-content-generator.git
-cd ai-content-generator
-
-# Install Ollama (for local LLMs)
-./scripts/setup-ollama.sh
+cd ai-content-generator/claude
 ```
 
-## Step 2: Start the API Server
+## Step 3: Configure Environment Variables
 
 ```bash
 # Navigate to API directory
@@ -32,13 +45,32 @@ npm install
 # Copy environment configuration
 cp .env.example .env
 
+# Edit .env file to update:
+# - Database credentials (if using PostgreSQL)
+# - Ollama settings (should work with defaults)
+# - Any API keys for cloud services (optional)
+
 # Start development server
 npm run dev
 ```
 
 The API server will start on http://localhost:3000
 
-## Step 3: Test the API
+## Step 4: Start the API Server
+
+```bash
+# Start development server
+npm run dev
+```
+
+The API server will start on http://localhost:3000
+
+You should see:
+- Ollama service initialized
+- Server listening on port 3000
+- Available providers listed
+
+## Step 5: Test the API
 
 ### Quick Test with cURL
 
@@ -91,7 +123,7 @@ Run it:
 node test.js
 ```
 
-## Step 4: Available Endpoints
+## Step 6: Available Endpoints
 
 - `GET /health` - Check server status
 - `POST /api/generate/text` - Generate text
@@ -99,8 +131,12 @@ node test.js
 - `POST /api/chat` - Interactive chat
 - `GET /api/models` - List available models
 - `GET /api/models/providers` - Check provider status
+- `POST /api/characters` - Create character profiles
+- `GET /api/characters/:id` - Get character details
+- `GET /api/intelligence/report` - View AI decision intelligence
+- `GET /api/performance/stats` - View performance metrics
 
-## Step 5: Using Different Models
+## Step 7: Using Different Models
 
 ### List Available Models
 ```bash
@@ -129,21 +165,34 @@ ollama pull codellama:7b
 ### Ollama Not Found
 ```bash
 # Check if Ollama is running
-curl http://localhost:11434/api/tags
+sudo systemctl status ollama
 
-# Start Ollama manually
-ollama serve
+# If not running, start it
+sudo systemctl start ollama
+
+# Check available models
+ollama list
+
+# Test Ollama directly
+curl http://localhost:11434/api/tags
 ```
 
 ### Port Already in Use
 ```bash
-# Change port in .env file
-PORT=3001
-
-# Or kill existing process
+# Find process using port 3000
 lsof -i :3000
+
+# Kill the process
 kill -9 [PID]
+
+# Or change port in .env file
+PORT=3001
 ```
+
+### Schema Validation Errors
+If you see "schema is invalid: data/required must be array":
+- This has been fixed in the latest version
+- Pull the latest changes or update route files
 
 ### Memory Issues
 - Use smaller models (gemma:2b, llama3.1:8b)
@@ -159,10 +208,12 @@ kill -9 [PID]
 
 ## Resources
 
-- [API Documentation](docs/API.md)
-- [Architecture Overview](docs/ARCHITECTURE.md)
+- [API Documentation](docs/api-reference.md)
+- [Character System](docs/character-system.md)
+- [Performance Tuning](docs/performance-tuning.md)
+- [Operations Guide](docs/operations-guide.md)
 - [Local LLM Plan](docs/plans/local_llm_implementation_plan.md)
-- [Ollama Models](https://ollama.ai/library)
+- [Ollama Models](https://ollama.com/library)
 
 ## Getting Help
 

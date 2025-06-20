@@ -1,0 +1,191 @@
+version: '3.8'
+
+services:
+  # API Service
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    container_name: ai-content-api
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOST: 0.0.0.0
+      # Ollama config
+      OLLAMA_HOST: http://ollama:11434
+      OLLAMA_DEFAULT_MODEL: ${OLLAMA_DEFAULT_MODEL:-llama3.1:8b}
+      # LM Studio config
+      LMSTUDIO_HOST: ${LMSTUDIO_HOST:-ws://lmstudio}
+      LMSTUDIO_PORT: ${LMSTUDIO_PORT:-1234}
+      # LocalAI config
+      LOCALAI_HOST: http://localai
+      LOCALAI_PORT: 8080
+      LOCALAI_API_KEY: ${LOCALAI_API_KEY:-sk-localai}
+      # Performance settings
+      ENABLE_CACHING: ${ENABLE_CACHING:-true}
+      ENABLE_BATCHING: ${ENABLE_BATCHING:-false}
+      ENABLE_PROMPT_OPTIMIZATION: ${ENABLE_PROMPT_OPTIMIZATION:-true}
+      ENABLE_CONNECTION_POOLING: ${ENABLE_CONNECTION_POOLING:-true}
+      ENABLE_PERFORMANCE_MONITORING: ${ENABLE_PERFORMANCE_MONITORING:-true}
+      # Security
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-100}
+      RATE_LIMIT_WINDOW: ${RATE_LIMIT_WINDOW:-1m}
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    volumes:
+      - api-data:/app/data
+      - api-logs:/app/logs
+    networks:
+      - ai-network
+    depends_on:
+      ollama:
+        condition: service_healthy
+      localai:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Ollama Service
+  ollama:
+    build:
+      context: .
+      dockerfile: Dockerfile.ollama
+    container_name: ai-content-ollama
+    restart: unless-stopped
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    environment:
+      OLLAMA_HOST: 0.0.0.0
+      OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE:-5m}
+      OLLAMA_NUM_PARALLEL: ${OLLAMA_NUM_PARALLEL:-1}
+      OLLAMA_MAX_LOADED_MODELS: ${OLLAMA_MAX_LOADED_MODELS:-1}
+    volumes:
+      - ollama-models:/home/ollama/.ollama/models
+    networks:
+      - ai-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # LocalAI Service
+  localai:
+    image: quay.io/go-skynet/local-ai:latest-gpu-nvidia-cuda-12
+    container_name: ai-content-localai
+    restart: unless-stopped
+    ports:
+      - "${LOCALAI_PORT:-8080}:8080"
+    environment:
+      MODELS_PATH: /models
+      THREADS: ${LOCALAI_THREADS:-4}
+      CONTEXT_SIZE: ${LOCALAI_CONTEXT_SIZE:-512}
+      DEBUG: ${LOCALAI_DEBUG:-false}
+      GALLERIES: |
+        [
+          {
+            "name": "model-gallery",
+            "url": "github:go-skynet/model-gallery/index.yaml"
+          }
+        ]
+    volumes:
+      - localai-models:/models
+      - localai-images:/tmp/generated/images
+    networks:
+      - ai-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/readyz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Redis Cache (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: ai-content-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - ai-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: ai-content-nginx
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx-cache:/var/cache/nginx
+    networks:
+      - ai-network
+    depends_on:
+      - api
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  ai-network:
+    driver: bridge
+
+volumes:
+  api-data:
+    driver: local
+  api-logs:
+    driver: local
+  ollama-models:
+    driver: local
+  localai-models:
+    driver: local
+  localai-images:
+    driver: local
+  redis-data:
+    driver: local
+  nginx-cache:
+    driver: local

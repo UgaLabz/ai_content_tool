@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: ai-content
+data:
+  ai-content-dashboard.json: |
+    {
+      "dashboard": {
+        "title": "AI Content Platform",
+        "panels": [
+          {
+            "title": "Request Rate",
+            "targets": [
+              {
+                "expr": "rate(api_request_total[5m])",
+                "legendFormat": "{{ method }} {{ path }}"
+              }
+            ],
+            "type": "graph"
+          },
+          {
+            "title": "Error Rate",
+            "targets": [
+              {
+                "expr": "rate(api_error_total[5m])",
+                "legendFormat": "{{ error_type }}"
+              }
+            ],
+            "type": "graph"
+          },
+          {
+            "title": "Response Time (p95)",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, rate(api_request_duration_seconds_bucket[5m]))",
+                "legendFormat": "95th percentile"
+              }
+            ],
+            "type": "graph"
+          },
+          {
+            "title": "Model Latency",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, rate(api_model_latency_seconds_bucket[5m]))",
+                "legendFormat": "{{ model }}"
+              }
+            ],
+            "type": "graph"
+          },
+          {
+            "title": "Cache Hit Rate",
+            "targets": [
+              {
+                "expr": "api_cache_hit_ratio",
+                "legendFormat": "Hit Rate"
+              }
+            ],
+            "type": "stat"
+          },
+          {
+            "title": "Active Connections",
+            "targets": [
+              {
+                "expr": "api_connections_active",
+                "legendFormat": "{{ pool }}"
+              }
+            ],
+            "type": "graph"
+          },
+          {
+            "title": "Memory Usage",
+            "targets": [
+              {
+                "expr": "(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes",
+                "legendFormat": "{{ instance }}"
+              }
+            ],
+            "type": "graph"
+          },
+          {
+            "title": "CPU Usage",
+            "targets": [
+              {
+                "expr": "rate(process_cpu_seconds_total[5m])",
+                "legendFormat": "{{ pod }}"
+              }
+            ],
+            "type": "graph"
+          }
+        ]
+      }
+    }

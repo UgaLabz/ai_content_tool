@@ -23,7 +23,33 @@ const GenerationRequestSchema = z.object({
 export const generationRoutes: FastifyPluginAsync = async (server) => {
   server.post('/text', {
     schema: {
-      body: GenerationRequestSchema,
+      body: {
+        type: 'object',
+        properties: {
+          prompt: { type: 'string', minLength: 1 },
+          options: {
+            type: 'object',
+            properties: {
+              temperature: { type: 'number', minimum: 0, maximum: 2 },
+              maxTokens: { type: 'number', minimum: 1, maximum: 4096 },
+              topP: { type: 'number', minimum: 0, maximum: 1 },
+              topK: { type: 'number', minimum: 1 },
+              systemPrompt: { type: 'string' },
+              stopSequences: { type: 'array', items: { type: 'string' } }
+            }
+          },
+          requirements: {
+            type: 'object',
+            properties: {
+              privacy: { type: 'boolean' },
+              preferredProvider: { type: 'string' },
+              maxLatency: { type: 'number' },
+              complexity: { type: 'number', minimum: 1, maximum: 10 }
+            }
+          }
+        },
+        required: ['prompt']
+      },
       response: {
         200: {
           type: 'object',
@@ -40,7 +66,8 @@ export const generationRoutes: FastifyPluginAsync = async (server) => {
                 totalTokens: { type: 'number' }
               }
             }
-          }
+          },
+          required: ['text', 'model', 'provider']
         }
       }
     }
@@ -75,7 +102,33 @@ export const generationRoutes: FastifyPluginAsync = async (server) => {
   
   server.post('/stream', {
     schema: {
-      body: GenerationRequestSchema
+      body: {
+        type: 'object',
+        properties: {
+          prompt: { type: 'string', minLength: 1 },
+          options: {
+            type: 'object',
+            properties: {
+              temperature: { type: 'number', minimum: 0, maximum: 2 },
+              maxTokens: { type: 'number', minimum: 1, maximum: 4096 },
+              topP: { type: 'number', minimum: 0, maximum: 1 },
+              topK: { type: 'number', minimum: 1 },
+              systemPrompt: { type: 'string' },
+              stopSequences: { type: 'array', items: { type: 'string' } }
+            }
+          },
+          requirements: {
+            type: 'object',
+            properties: {
+              privacy: { type: 'boolean' },
+              preferredProvider: { type: 'string' },
+              maxLatency: { type: 'number' },
+              complexity: { type: 'number', minimum: 1, maximum: 10 }
+            }
+          }
+        },
+        required: ['prompt']
+      }
     }
   }, async (request, reply) => {
     const { prompt, options = {}, requirements = {} } = request.body as z.infer<typeof GenerationRequestSchema>;

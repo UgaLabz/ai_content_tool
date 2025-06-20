@@ -22,7 +22,73 @@ const ChatRequestSchema = z.object({
 export const chatRoutes: FastifyPluginAsync = async (server) => {
   server.post('/', {
     schema: {
-      body: ChatRequestSchema
+      body: {
+        type: 'object',
+        properties: {
+          message: { type: 'string', minLength: 1 },
+          context: {
+            type: 'object',
+            properties: {
+              sessionId: { type: 'string' },
+              characterId: { type: 'string' },
+              conversationHistory: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    role: { enum: ['system', 'user', 'assistant'] },
+                    content: { type: 'string' }
+                  },
+                  required: ['role', 'content']
+                }
+              }
+            }
+          },
+          options: {
+            type: 'object',
+            properties: {
+              temperature: { type: 'number', minimum: 0, maximum: 2 },
+              maxTokens: { type: 'number', minimum: 1, maximum: 4096 },
+              systemPrompt: { type: 'string' }
+            }
+          }
+        },
+        required: ['message']
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            response: { type: 'string' },
+            model: { type: 'string' },
+            provider: { type: 'string' },
+            usage: {
+              type: 'object',
+              properties: {
+                promptTokens: { type: 'number' },
+                completionTokens: { type: 'number' },
+                totalTokens: { type: 'number' }
+              }
+            },
+            context: {
+              type: 'object',
+              properties: {
+                sessionId: { type: 'string' },
+                characterId: { type: 'string' }
+              }
+            }
+          },
+          required: ['response', 'model', 'provider']
+        },
+        500: {
+          type: 'object',
+          properties: {
+            error: { type: 'string' },
+            message: { type: 'string' }
+          },
+          required: ['error']
+        }
+      }
     }
   }, async (request, reply) => {
     const { message, context, options = {} } = request.body as z.infer<typeof ChatRequestSchema>;

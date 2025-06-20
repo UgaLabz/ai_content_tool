@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama-deployment
+  namespace: ai-content
+  labels:
+    app: ai-content-ollama
+    component: ollama
+spec:
+  replicas: 1  # Ollama should run as singleton with GPU
+  selector:
+    matchLabels:
+      app: ai-content-ollama
+      component: ollama
+  template:
+    metadata:
+      labels:
+        app: ai-content-ollama
+        component: ollama
+    spec:
+      nodeSelector:
+        nvidia.com/gpu: "true"  # Schedule on GPU nodes
+      containers:
+      - name: ollama
+        image: ai-content/ollama:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 11434
+          name: http
+          protocol: TCP
+        env:
+        - name: OLLAMA_HOST
+          value: "0.0.0.0"
+        - name: OLLAMA_KEEP_ALIVE
+          value: "5m"
+        - name: OLLAMA_NUM_PARALLEL
+          value: "1"
+        - name: OLLAMA_MAX_LOADED_MODELS
+          value: "1"
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: "0"
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 8Gi
+            nvidia.com/gpu: 1
+          limits:
+            cpu: 4000m
+            memory: 32Gi
+            nvidia.com/gpu: 1
+        livenessProbe:
+          httpGet:
+            path: /api/tags
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/tags
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: models
+          mountPath: /home/ollama/.ollama/models
+        - name: dshm
+          mountPath: /dev/shm
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+      volumes:
+      - name: models
+        persistentVolumeClaim:
+          claimName: ollama-models-pvc
+      - name: dshm
+        emptyDir:
+          medium: Memory
+          sizeLimit: 2Gi
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama-service
+  namespace: ai-content
+  labels:
+    app: ai-content-ollama
+    component: ollama
+spec:
+  type: ClusterIP
+  ports:
+  - port: 11434
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: ai-content-ollama
+    component: ollama
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-models-pvc
+  namespace: ai-content
+  labels:
+    app: ai-content-ollama
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: fast-ssd  # Use SSD for model storage

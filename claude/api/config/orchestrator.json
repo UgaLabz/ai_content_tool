@@ -1,0 +1,70 @@
+{
+  "version": "1.0",
+  "providers": [
+    {
+      "name": "Ollama",
+      "priority": 80,
+      "enabled": true,
+      "costMultiplier": 1
+    },
+    {
+      "name": "LMStudio",
+      "priority": 75,
+      "enabled": true,
+      "costMultiplier": 1
+    },
+    {
+      "name": "LocalAI",
+      "priority": 70,
+      "enabled": true,
+      "costMultiplier": 1.2
+    }
+  ],
+  "costLimits": {
+    "warningThreshold": 0.8,
+    "actionOnLimit": "fallback"
+  },
+  "performanceThresholds": {
+    "timeoutMs": 30000,
+    "acceptableErrorRate": 0.05
+  },
+  "privacySettings": {
+    "mode": "balanced",
+    "allowCloudProviders": true,
+    "allowDataLogging": false,
+    "requireEncryption": true
+  },
+  "routingRules": [
+    {
+      "id": "prefer-local-for-privacy",
+      "name": "Prefer Local for Privacy",
+      "priority": 90,
+      "enabled": true,
+      "conditions": {
+        "promptPattern": "(personal|private|confidential|secret)"
+      },
+      "actions": {
+        "requiredProviderType": "local"
+      }
+    },
+    {
+      "id": "use-small-models-for-simple",
+      "name": "Use Small Models for Simple Tasks",
+      "priority": 80,
+      "enabled": true,
+      "conditions": {
+        "complexity": {
+          "max": 3
+        }
+      },
+      "actions": {
+        "modelSizePreference": "small",
+        "maxCost": 0.01
+      }
+    }
+  ],
+  "intelligenceEnabled": true,
+  "resourceMonitoring": true,
+  "metricsRetentionDays": 30,
+  "debugMode": false
+}

@@ -1,0 +1,97 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-network-policy
+  namespace: ai-content
+spec:
+  podSelector:
+    matchLabels:
+      app: ai-content-api
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ai-content
+    - podSelector:
+        matchLabels:
+          app: ai-content-nginx
+    ports:
+    - protocol: TCP
+      port: 3000
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ai-content
+    - podSelector:
+        matchLabels:
+          app: ai-content-ollama
+    ports:
+    - protocol: TCP
+      port: 11434
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ai-content
+    - podSelector:
+        matchLabels:
+          app: ai-content-localai
+    ports:
+    - protocol: TCP
+      port: 8080
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ai-content
+    - podSelector:
+        matchLabels:
+          app: ai-content-redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  # Allow DNS
+  - to:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ollama-network-policy
+  namespace: ai-content
+spec:
+  podSelector:
+    matchLabels:
+      app: ai-content-ollama
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ai-content
+    - podSelector:
+        matchLabels:
+          app: ai-content-api
+    ports:
+    - protocol: TCP
+      port: 11434
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: ai-content
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
