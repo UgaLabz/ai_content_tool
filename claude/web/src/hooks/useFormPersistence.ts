@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { UseFormReturn } from 'react-hook-form'
-import { storage } from '@/utils/common'
+import { storage } from '@/utils/storage'
 
 export function useFormPersistence<T extends Record<string, any>>(
   form: UseFormReturn<T>,

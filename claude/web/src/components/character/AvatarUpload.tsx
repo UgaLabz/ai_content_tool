@@ -13,11 +13,15 @@ interface AvatarUploadProps {
 export function AvatarUpload({ value, onChange, className }: AvatarUploadProps) {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0]
-    if (file) {
-      // In a real app, you would upload to a server
-      // For now, we'll use a local URL
-      const url = URL.createObjectURL(file)
-      onChange(url)
+    if (file && file.size <= 5 * 1024 * 1024) { // 5MB limit
+      // Read file as data URL
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (reader.result) {
+          onChange(reader.result as string)
+        }
+      }
+      reader.readAsDataURL(file)
     }
   }, [onChange])
 
@@ -27,6 +31,7 @@ export function AvatarUpload({ value, onChange, className }: AvatarUploadProps) 
       'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp']
     },
     maxFiles: 1,
+    maxSize: 5 * 1024 * 1024, // 5MB
   })
 
   const handleRemove = () => {
@@ -39,7 +44,7 @@ export function AvatarUpload({ value, onChange, className }: AvatarUploadProps) 
         <div className="relative inline-block">
           <img
             src={value}
-            alt="Avatar"
+            alt="Character avatar"
             className="h-24 w-24 rounded-full object-cover"
           />
           <Button
@@ -48,6 +53,7 @@ export function AvatarUpload({ value, onChange, className }: AvatarUploadProps) 
             size="icon"
             className="absolute -right-2 -top-2 h-6 w-6"
             onClick={handleRemove}
+            aria-label="Remove avatar"
           >
             <X className="h-3 w-3" />
           </Button>
@@ -56,7 +62,7 @@ export function AvatarUpload({ value, onChange, className }: AvatarUploadProps) 
         <div
           {...getRootProps()}
           className={cn(
-            'flex h-24 w-24 cursor-pointer items-center justify-center rounded-full border-2 border-dashed transition-colors',
+            'flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors',
             isDragActive
               ? 'border-primary bg-primary/10'
               : 'border-muted-foreground/25 hover:border-muted-foreground/50'
@@ -64,15 +70,18 @@ export function AvatarUpload({ value, onChange, className }: AvatarUploadProps) 
         >
           <input {...getInputProps()} />
           {isDragActive ? (
-            <Upload className="h-8 w-8 text-muted-foreground" />
+            <Upload className="h-8 w-8 text-muted-foreground mb-2" />
           ) : (
-            <User className="h-8 w-8 text-muted-foreground" />
+            <User className="h-8 w-8 text-muted-foreground mb-2" />
           )}
+          <p className="text-sm text-muted-foreground">
+            Drag & drop your image here, or click to upload
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            PNG, JPG, GIF up to 5MB
+          </p>
         </div>
       )}
-      <p className="text-xs text-muted-foreground">
-        Click or drag to upload avatar
-      </p>
     </div>
   )
 }
