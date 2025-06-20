@@ -1,11 +1,10 @@
-import { UseFormReturn } from 'react-hook-form'
+import type { UseFormReturn } from 'react-hook-form'
 import { Plus, X } from 'lucide-react'
 import { Label } from '@/components/ui/Label'
 import { Button } from '@/components/ui/Button'
-import { Badge } from '@/components/ui/Badge'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
-import { CharacterFormData } from '@/types/character.types'
+import type { CharacterFormData } from '@/types/character.types'
 import { useState } from 'react'
 
 interface DetailsStepProps {
@@ -32,21 +31,22 @@ export function DetailsStep({ form }: DetailsStepProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-semibold">Additional Details</h3>
-        <p className="text-sm text-muted-foreground">
+        <h3 className="text-xl font-semibold text-foreground">Additional Details</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
           Add backstory and signature phrases to make your character unique
         </p>
       </div>
 
       {/* Background */}
       <div className="space-y-2">
-        <Label htmlFor="background">Background Story (Optional)</Label>
+        <Label htmlFor="background" className="text-base">Background Story (Optional)</Label>
         <Textarea
           id="background"
           placeholder="Describe your character's history, motivations, or any relevant backstory..."
           rows={4}
+          className="bg-background"
           {...register('background')}
         />
         <p className="text-xs text-muted-foreground">

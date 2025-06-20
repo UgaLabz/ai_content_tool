@@ -1,11 +1,12 @@
-import { UseFormReturn } from 'react-hook-form'
+import type { UseFormReturn } from 'react-hook-form'
 import { Plus, X } from 'lucide-react'
 import { Label } from '@/components/ui/Label'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { Slider } from '@/components/ui/Slider'
 import { Input } from '@/components/ui/Input'
-import { CharacterFormData, TRAIT_OPTIONS } from '@/types/character.types'
+import type { CharacterFormData } from '@/types/character.types'
+import { TRAIT_OPTIONS } from '@/types/character.types'
 import { useState } from 'react'
 
 interface PersonalityStepProps {
@@ -53,10 +54,10 @@ export function PersonalityStep({ form }: PersonalityStepProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-semibold">Personality Traits</h3>
-        <p className="text-sm text-muted-foreground">
+        <h3 className="text-xl font-semibold text-foreground">Personality Traits</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
           Define your character's personality and behavioral traits
         </p>
       </div>
@@ -120,37 +121,41 @@ export function PersonalityStep({ form }: PersonalityStepProps) {
       </div>
 
       {/* Personality Sliders */}
-      <div className="space-y-4">
+      <div className="space-y-6 rounded-lg border bg-card/50 p-6">
         <Slider
           label="Humor Level"
-          value={personality.humor}
-          onValueChange={(value) => setValue('personality.humor', value)}
+          value={[personality.humor]}
+          onValueChange={(value) => setValue('personality.humor', value[0])}
           min={0}
           max={100}
+          step={1}
         />
         
         <Slider
           label="Formality"
-          value={personality.formality}
-          onValueChange={(value) => setValue('personality.formality', value)}
+          value={[personality.formality]}
+          onValueChange={(value) => setValue('personality.formality', value[0])}
           min={0}
           max={100}
+          step={1}
         />
         
         <Slider
           label="Enthusiasm"
-          value={personality.enthusiasm}
-          onValueChange={(value) => setValue('personality.enthusiasm', value)}
+          value={[personality.enthusiasm]}
+          onValueChange={(value) => setValue('personality.enthusiasm', value[0])}
           min={0}
           max={100}
+          step={1}
         />
         
         <Slider
           label="Empathy"
-          value={personality.empathy}
-          onValueChange={(value) => setValue('personality.empathy', value)}
+          value={[personality.empathy]}
+          onValueChange={(value) => setValue('personality.empathy', value[0])}
           min={0}
           max={100}
+          step={1}
         />
       </div>
 

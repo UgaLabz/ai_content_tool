@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
-import { Character } from '@/types/api.types'
+import type { Character } from '@/types/api.types'
 import { cn } from '@/utils/cn'
 import { formatDistanceToNow } from '@/utils/date'
 
@@ -45,7 +45,7 @@ export function CharacterDetailView({
   const stats = [
     {
       label: 'Total Generations',
-      value: character.generation_count || 0,
+      value: character.stats?.totalGenerations || 0,
       icon: Hash,
       color: 'text-blue-600',
     },
@@ -57,13 +57,13 @@ export function CharacterDetailView({
     },
     {
       label: 'Consistency Score',
-      value: '94%',
+      value: `${character.stats?.consistencyScore || 0}%`,
       icon: TrendingUp,
       color: 'text-purple-600',
     },
     {
       label: 'Last Active',
-      value: formatDistanceToNow(character.updated_at),
+      value: formatDistanceToNow(character.updatedAt),
       icon: Calendar,
       color: 'text-orange-600',
     },
@@ -100,8 +100,8 @@ export function CharacterDetailView({
             
             <div>
               <h1 className="text-3xl font-bold">{character.name}</h1>
-              {character.bio && (
-                <p className="text-muted-foreground mt-1">{character.bio}</p>
+              {character.background && (
+                <p className="text-muted-foreground mt-1">{character.background}</p>
               )}
             </div>
           </div>
@@ -249,19 +249,19 @@ export function CharacterDetailView({
                     </p>
                   </div>
                 )}
-                {character.voice?.sentence_structure && (
+                {character.voice?.sentenceStructure && (
                   <div>
                     <h4 className="text-sm font-medium">Sentence Structure</h4>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {character.voice.sentence_structure}
+                      {character.voice.sentenceStructure}
                     </p>
                   </div>
                 )}
-                {character.voice?.language_style && (
+                {character.voice?.languageStyle && (
                   <div>
                     <h4 className="text-sm font-medium">Language Style</h4>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {character.voice.language_style}
+                      {character.voice.languageStyle}
                     </p>
                   </div>
                 )}
@@ -309,32 +309,31 @@ export function CharacterDetailView({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {character.memories && character.memories.length > 0 ? (
+              {character.memoryAnchors && character.memoryAnchors.length > 0 ? (
                 <div className="space-y-4">
-                  {character.memories.map((memory, index) => (
-                    <div key={index} className="border-l-2 border-muted pl-4 pb-4">
+                  {character.memoryAnchors.map((memory) => (
+                    <div key={memory.id} className="border-l-2 border-muted pl-4 pb-4">
                       <div className="flex items-center gap-2 mb-1">
                         <div className="w-2 h-2 bg-primary rounded-full -ml-5" />
+                        <Badge variant="secondary" className="text-xs">
+                          {memory.type}
+                        </Badge>
                         <span className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(memory.created_at)} ago
+                          Importance: {memory.importance}%
                         </span>
                       </div>
                       <p className="text-sm">{memory.content}</p>
-                      {memory.metadata && (
-                        <div className="mt-2 flex gap-2">
-                          {Object.entries(memory.metadata).map(([key, value]) => (
-                            <Badge key={key} variant="outline" className="text-xs">
-                              {key}: {String(value)}
-                            </Badge>
-                          ))}
-                        </div>
+                      {memory.context && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Context: {memory.context}
+                        </p>
                       )}
                     </div>
                   ))}
                 </div>
               ) : (
                 <p className="text-center text-muted-foreground py-8">
-                  No memories yet. Start generating content to build character memory.
+                  No memory anchors yet. Start generating content to build character memory.
                 </p>
               )}
             </CardContent>

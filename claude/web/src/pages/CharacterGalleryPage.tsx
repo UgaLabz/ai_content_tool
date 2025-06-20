@@ -1,48 +1,42 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Plus, Users } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { CharacterGallery } from '@/components/character/CharacterGallery'
+import { CharacterGallerySkeleton } from '@/components/character/CharacterGallerySkeleton'
 import { CharacterCreatorForm } from '@/components/character/CharacterCreatorForm'
 import { CharacterDetailView } from '@/components/character/CharacterDetailView'
 import { EmptyState } from '@/components/common/EmptyState'
 import { PageLayout } from '@/components/layout/PageLayout'
-import { Character } from '@/types/api.types'
-import { CharacterFormData } from '@/types/character.types'
-import { characterService } from '@/services/api/character'
+import type { Character } from '@/types/api.types'
+import type { CharacterFormData } from '@/types/character.types'
+import { 
+  useCharacters, 
+  useCreateCharacter, 
+  // useUpdateCharacter, 
+  useDeleteCharacter,
+  useDuplicateCharacter 
+} from '@/hooks/useCharacters'
+// import { useCharacterStore } from '@/stores/characterStore'
 import { useToast } from '@/hooks/useToast'
 
 export function CharacterGalleryPage() {
-  const [characters, setCharacters] = useState<Character[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [showCreator, setShowCreator] = useState(false)
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null)
   const { error: showError, success: showSuccess } = useToast()
 
-  // Fetch characters on mount
-  useEffect(() => {
-    fetchCharacters()
-  }, [])
-
-  const fetchCharacters = async () => {
-    try {
-      setIsLoading(true)
-      const data = await characterService.getAll()
-      setCharacters(data)
-    } catch (error) {
-      showError('Failed to load characters')
-      console.error('Error fetching characters:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  // React Query hooks
+  const { data: characters = [], isLoading } = useCharacters()
+  const createCharacterMutation = useCreateCharacter()
+  // const updateCharacterMutation = useUpdateCharacter()
+  const deleteCharacterMutation = useDeleteCharacter()
+  const duplicateCharacterMutation = useDuplicateCharacter()
 
   const handleCreateCharacter = async (data: CharacterFormData) => {
     try {
-      const newCharacter = await characterService.create({
+      await createCharacterMutation.mutateAsync({
         ...data,
         relationships: data.relationships || [],
       })
-      setCharacters(prev => [newCharacter, ...prev])
       setShowCreator(false)
       showSuccess('Character created successfully!')
     } catch (error) {
@@ -51,10 +45,15 @@ export function CharacterGalleryPage() {
     }
   }
 
-  const handleEditCharacter = (character: Character) => {
-    // TODO: Implement edit functionality
-    console.log('Edit character:', character)
-  }
+  // const handleEditCharacter = async (character: Character, data: Partial<Character>) => {
+  //   try {
+  //     await updateCharacterMutation.mutateAsync({ id: character.id, data })
+  //     showSuccess('Character updated successfully!')
+  //   } catch (error) {
+  //     showError('Failed to update character')
+  //     console.error('Error updating character:', error)
+  //   }
+  // }
 
   const handleDeleteCharacter = async (character: Character) => {
     if (!confirm(`Are you sure you want to delete ${character.name}?`)) {
@@ -62,8 +61,7 @@ export function CharacterGalleryPage() {
     }
 
     try {
-      await characterService.delete(character.id)
-      setCharacters(prev => prev.filter(c => c.id !== character.id))
+      await deleteCharacterMutation.mutateAsync(character.id)
       showSuccess('Character deleted successfully')
     } catch (error) {
       showError('Failed to delete character')
@@ -73,18 +71,7 @@ export function CharacterGalleryPage() {
 
   const handleDuplicateCharacter = async (character: Character) => {
     try {
-      const duplicatedData = {
-        name: `${character.name} (Copy)`,
-        avatar: character.avatar,
-        personality: character.personality,
-        voice: character.voice,
-        bio: character.bio,
-        background: character.background,
-        relationships: character.relationships || [],
-        catchphrases: character.catchphrases || [],
-      }
-      const newCharacter = await characterService.create(duplicatedData)
-      setCharacters(prev => [newCharacter, ...prev])
+      await duplicateCharacterMutation.mutateAsync(character.id)
       showSuccess('Character duplicated successfully!')
     } catch (error) {
       showError('Failed to duplicate character')
@@ -119,7 +106,10 @@ export function CharacterGalleryPage() {
       <CharacterDetailView
         character={selectedCharacter}
         onBack={handleBackFromDetail}
-        onEdit={handleEditCharacter}
+        onEdit={(character) => {
+          // TODO: Implement character edit form
+          console.log('Edit character:', character)
+        }}
         onDelete={(character) => {
           handleDeleteCharacter(character)
           setSelectedCharacter(null)
@@ -140,12 +130,7 @@ export function CharacterGalleryPage() {
       }
     >
       {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <p className="mt-2 text-sm text-muted-foreground">Loading characters...</p>
-          </div>
-        </div>
+        <CharacterGallerySkeleton />
       ) : characters.length === 0 ? (
         <EmptyState
           icon={<Users className="h-12 w-12" />}
@@ -162,7 +147,10 @@ export function CharacterGalleryPage() {
         <CharacterGallery
           characters={characters}
           onCharacterSelect={handleCharacterSelect}
-          onCharacterEdit={handleEditCharacter}
+          onCharacterEdit={(character) => {
+            // TODO: Implement character edit form
+            console.log('Edit character:', character)
+          }}
           onCharacterDelete={handleDeleteCharacter}
           onCharacterDuplicate={handleDuplicateCharacter}
         />

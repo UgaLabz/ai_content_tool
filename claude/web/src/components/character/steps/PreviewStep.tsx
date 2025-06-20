@@ -1,5 +1,5 @@
-import { UseFormReturn } from 'react-hook-form'
-import { CharacterFormData } from '@/types/character.types'
+import type { UseFormReturn } from 'react-hook-form'
+import type { CharacterFormData } from '@/types/character.types'
 import { CharacterPreview } from '../CharacterPreview'
 
 interface PreviewStepProps {

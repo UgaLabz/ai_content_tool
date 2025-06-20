@@ -247,16 +247,87 @@ Content-Type: application/json
   "id": "unique-id",
   "name": "Character Name",
   "description": "Character description",
-  "personality": { /* see character system docs */ },
-  "background": { /* see character system docs */ },
-  "voice": { /* see character system docs */ },
-  "knowledge": [ /* see character system docs */ ]
+  "avatar": "base64-encoded-image-or-url",
+  "personality": {
+    "openness": 80,
+    "conscientiousness": 75,
+    "extraversion": 60,
+    "agreeableness": 85,
+    "neuroticism": 30,
+    "traits": ["creative", "analytical", "patient"],
+    "values": ["knowledge", "integrity", "growth"],
+    "quirks": ["taps fingers when thinking", "uses metaphors"]
+  },
+  "background": {
+    "origin": "Brief backstory",
+    "education": "Educational background",
+    "experience": "Professional experience",
+    "relationships": ["mentor", "colleague"]
+  },
+  "voice": {
+    "tone": "friendly",
+    "formality": "moderate",
+    "vocabulary": "professional",
+    "catchphrases": ["Let's think about this", "Interesting perspective"],
+    "speechPatterns": ["asks clarifying questions", "provides examples"]
+  },
+  "knowledge": [
+    {
+      "domain": "technology",
+      "expertise": "high",
+      "topics": ["AI", "software development", "system design"]
+    }
+  ],
+  "capabilities": {
+    "canGenerateImages": false,
+    "canAnalyzeImages": true,
+    "preferredModels": ["llama3.1:70b", "mixtral:8x7b"]
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "id": "generated-uuid",
+  "name": "Character Name",
+  "description": "Character description",
+  "avatar": "https://api.example.com/avatars/generated-uuid.jpg",
+  "personality": { /* ... */ },
+  "background": { /* ... */ },
+  "voice": { /* ... */ },
+  "knowledge": [ /* ... */ ],
+  "capabilities": { /* ... */ },
+  "createdAt": "2025-01-20T12:00:00Z",
+  "updatedAt": "2025-01-20T12:00:00Z"
 }
 ```
 
 #### List Characters
 ```http
-GET /api/characters
+GET /api/characters?page=1&limit=20&search=sherlock&tags=detective,analytical
+```
+
+**Response:**
+```json
+{
+  "characters": [
+    {
+      "id": "character-id",
+      "name": "Character Name",
+      "description": "Brief description",
+      "avatar": "avatar-url",
+      "tags": ["detective", "analytical"],
+      "createdAt": "2025-01-20T12:00:00Z"
+    }
+  ],
+  "pagination": {
+    "total": 50,
+    "page": 1,
+    "limit": 20,
+    "pages": 3
+  }
+}
 ```
 
 #### Get Character
@@ -264,19 +335,32 @@ GET /api/characters
 GET /api/characters/{characterId}
 ```
 
+**Response:** Full character object as shown in Create Character response
+
 #### Update Character
 ```http
 PATCH /api/characters/{characterId}
 Content-Type: application/json
 
 {
-  /* partial character object */
+  /* partial character object - only fields to update */
+  "personality": {
+    "traits": ["creative", "analytical", "patient", "curious"]
+  }
 }
 ```
 
 #### Delete Character
 ```http
 DELETE /api/characters/{characterId}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Character deleted successfully"
+}
 ```
 
 ### Memory Management
@@ -395,6 +479,57 @@ Content-Type: application/json
   }
 }
 ```
+
+## Data Mapping
+
+### API to Frontend Character Mapping
+
+The API returns character data in a backend-optimized format, which is transformed for frontend consumption:
+
+**Backend Format:**
+```typescript
+{
+  id: string;
+  name: string;
+  description: string;
+  personality: {
+    traits: {
+      openness: number;
+      conscientiousness: number;
+      extraversion: number;
+      agreeableness: number;
+      neuroticism: number;
+    };
+    coreTraits: string[];
+    values: string[];
+    quirks: string[];
+  };
+  // ... other fields
+}
+```
+
+**Frontend Format:**
+```typescript
+{
+  id: string;
+  name: string;
+  description: string;
+  avatar?: string;
+  personality: {
+    openness: number;
+    conscientiousness: number;
+    extraversion: number;
+    agreeableness: number;
+    neuroticism: number;
+    traits: string[];
+    values: string[];
+    quirks: string[];
+  };
+  // ... mapped fields
+}
+```
+
+The `character-response-mapper.ts` service handles this transformation automatically.
 
 ## Error Codes
 

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { UseFormReturn } from 'react-hook-form'
+import type { UseFormReturn } from 'react-hook-form'
 import { storage } from '@/utils/storage'
 
 export function useFormPersistence<T extends Record<string, any>>(
@@ -25,9 +25,9 @@ export function useFormPersistence<T extends Record<string, any>>(
   useEffect(() => {
     const subscription = watch((data) => {
       // Remove excluded fields
-      const dataToSave = { ...data }
+      const dataToSave = { ...data } as Record<string, any>
       exclude.forEach((field) => {
-        delete dataToSave[field]
+        delete dataToSave[field as string]
       })
 
       // Debounced save

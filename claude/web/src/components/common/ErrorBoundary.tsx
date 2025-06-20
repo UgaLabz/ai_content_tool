@@ -1,7 +1,9 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react'
+import { Component } from 'react'
+import type { ErrorInfo, ReactNode } from 'react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/Alert'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/Card'
 
 interface Props {
   children: ReactNode
@@ -39,22 +41,46 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="min-h-[400px] flex items-center justify-center p-4">
-          <Alert variant="destructive" className="max-w-lg">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Something went wrong</AlertTitle>
-            <AlertDescription className="mt-2">
-              <p className="mb-4">
+          <Card className="max-w-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-destructive">
+                <AlertTriangle className="h-5 w-5" />
+                Something went wrong
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
                 {this.state.error?.message || 'An unexpected error occurred'}
               </p>
+              {process.env.NODE_ENV === 'development' && this.state.error?.stack && (
+                <details className="mb-4">
+                  <summary className="text-sm font-medium cursor-pointer">
+                    Error details
+                  </summary>
+                  <pre className="mt-2 text-xs bg-muted p-3 rounded overflow-auto max-h-48">
+                    {this.state.error.stack}
+                  </pre>
+                </details>
+              )}
+            </CardContent>
+            <CardFooter className="gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={this.handleReset}
               >
+                <RefreshCw className="mr-2 h-4 w-4" />
                 Try again
               </Button>
-            </AlertDescription>
-          </Alert>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => window.location.reload()}
+              >
+                Reload page
+              </Button>
+            </CardFooter>
+          </Card>
         </div>
       )
     }

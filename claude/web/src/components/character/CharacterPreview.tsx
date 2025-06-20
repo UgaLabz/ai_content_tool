@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/Button'
 import { Label } from '@/components/ui/Label'
 import { Sparkles, Loader2 } from 'lucide-react'
 import { useState } from 'react'
-import { Character } from '@/types/api.types'
-import { CharacterFormData } from '@/types/character.types'
+import type { Character } from '@/types/api.types'
+import type { CharacterFormData } from '@/types/character.types'
 import { generationService } from '@/services/api/generation'
 import { cn } from '@/utils/cn'
 
@@ -25,10 +25,7 @@ export function CharacterPreview({ formData, className }: CharacterPreviewProps)
     personality: formData.personality,
     voice: formData.voice,
     catchphrases: formData.catchphrases,
-    bio: formData.bio,
     background: formData.background,
-    relationships: formData.relationships || [],
-    memories: [],
   }
 
   const generateSample = async () => {
@@ -44,11 +41,10 @@ export function CharacterPreview({ formData, className }: CharacterPreviewProps)
     try {
       const response = await generationService.generate({
         prompt: 'Introduce yourself in a few sentences that showcase your personality.',
-        character_id: 'preview', // Special ID for preview
-        character, // Pass character data directly
+        characterId: 'preview', // Special ID for preview
         options: {
           temperature: 0.8,
-          max_tokens: 150,
+          maxTokens: 150,
         },
       })
 
@@ -85,9 +81,9 @@ export function CharacterPreview({ formData, className }: CharacterPreviewProps)
             <h3 className="text-xl font-semibold">
               {character.name || 'Unnamed Character'}
             </h3>
-            {character.bio && (
+            {character.background && (
               <p className="text-sm text-muted-foreground mt-1">
-                {character.bio}
+                {character.background}
               </p>
             )}
           </div>
@@ -115,25 +111,25 @@ export function CharacterPreview({ formData, className }: CharacterPreviewProps)
                 {character.personality.humor !== undefined && (
                   <div>
                     <span className="text-muted-foreground">Humor:</span>
-                    <span className="ml-2">{Math.round(character.personality.humor * 100)}%</span>
+                    <span className="ml-2">{character.personality.humor}%</span>
                   </div>
                 )}
                 {character.personality.formality !== undefined && (
                   <div>
                     <span className="text-muted-foreground">Formality:</span>
-                    <span className="ml-2">{Math.round(character.personality.formality * 100)}%</span>
+                    <span className="ml-2">{character.personality.formality}%</span>
                   </div>
                 )}
                 {character.personality.enthusiasm !== undefined && (
                   <div>
                     <span className="text-muted-foreground">Enthusiasm:</span>
-                    <span className="ml-2">{Math.round(character.personality.enthusiasm * 100)}%</span>
+                    <span className="ml-2">{character.personality.enthusiasm}%</span>
                   </div>
                 )}
                 {character.personality.empathy !== undefined && (
                   <div>
                     <span className="text-muted-foreground">Empathy:</span>
-                    <span className="ml-2">{Math.round(character.personality.empathy * 100)}%</span>
+                    <span className="ml-2">{character.personality.empathy}%</span>
                   </div>
                 )}
               </div>
@@ -158,10 +154,10 @@ export function CharacterPreview({ formData, className }: CharacterPreviewProps)
                   <span className="ml-2">{character.voice.vocabulary}</span>
                 </div>
               )}
-              {character.voice.sentence_structure && (
+              {character.voice.sentenceStructure && (
                 <div>
                   <span className="text-muted-foreground">Sentence Structure:</span>
-                  <span className="ml-2">{character.voice.sentence_structure}</span>
+                  <span className="ml-2">{character.voice.sentenceStructure}</span>
                 </div>
               )}
             </div>

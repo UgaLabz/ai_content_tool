@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { CharacterDetailView } from '@/components/character/CharacterDetailView'
-import { Character } from '@/types/api.types'
-import { characterService } from '@/services/api/character'
+import type { Character } from '@/types/api.types'
+import { characterService } from '@/services/api/characters'
 import { useToast } from '@/hooks/useToast'
 
 export function CharacterDetailPage() {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
+  // TODO: Replace with actual routing params when router is set up
+  const id = 'placeholder-id' // This will come from router params
   const [character, setCharacter] = useState<Character | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const { error: showError, success: showSuccess } = useToast()
@@ -27,14 +26,16 @@ export function CharacterDetailPage() {
     } catch (error) {
       showError('Failed to load character')
       console.error('Error fetching character:', error)
-      navigate('/characters')
+      // TODO: navigate('/characters')
+      console.log('Would navigate to /characters')
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleEdit = (character: Character) => {
-    navigate(`/characters/${character.id}/edit`)
+    // TODO: navigate(`/characters/${character.id}/edit`)
+    console.log('Would navigate to edit:', character.id)
   }
 
   const handleDelete = async (character: Character) => {
@@ -45,7 +46,8 @@ export function CharacterDetailPage() {
     try {
       await characterService.delete(character.id)
       showSuccess('Character deleted successfully')
-      navigate('/characters')
+      // TODO: navigate('/characters')
+      console.log('Would navigate to /characters')
     } catch (error) {
       showError('Failed to delete character')
       console.error('Error deleting character:', error)
@@ -53,7 +55,8 @@ export function CharacterDetailPage() {
   }
 
   const handleBack = () => {
-    navigate('/characters')
+    // TODO: navigate('/characters')
+    console.log('Would navigate back to /characters')
   }
 
   if (isLoading) {

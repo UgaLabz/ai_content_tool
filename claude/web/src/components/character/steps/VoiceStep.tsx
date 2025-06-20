@@ -1,11 +1,11 @@
-import { UseFormReturn } from 'react-hook-form'
+import type { UseFormReturn } from 'react-hook-form'
 import { Plus, X } from 'lucide-react'
 import { Label } from '@/components/ui/Label'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { Input } from '@/components/ui/Input'
+import type { CharacterFormData } from '@/types/character.types'
 import { 
-  CharacterFormData, 
   TONE_OPTIONS, 
   VOCABULARY_OPTIONS, 
   SENTENCE_STRUCTURE_OPTIONS 
@@ -64,16 +64,16 @@ export function VoiceStep({ form }: VoiceStepProps) {
   )
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-semibold">Voice & Communication Style</h3>
-        <p className="text-sm text-muted-foreground">
+        <h3 className="text-xl font-semibold text-foreground">Voice & Communication Style</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
           How does your character speak and communicate?
         </p>
       </div>
 
       {/* Tone */}
-      <div>
+      <div className="space-y-2">
         <SelectOption
           label="Tone"
           options={TONE_OPTIONS}
@@ -88,7 +88,7 @@ export function VoiceStep({ form }: VoiceStepProps) {
       </div>
 
       {/* Vocabulary */}
-      <div>
+      <div className="space-y-2">
         <SelectOption
           label="Vocabulary Style"
           options={VOCABULARY_OPTIONS}
@@ -103,7 +103,7 @@ export function VoiceStep({ form }: VoiceStepProps) {
       </div>
 
       {/* Sentence Structure */}
-      <div>
+      <div className="space-y-2">
         <SelectOption
           label="Sentence Structure"
           options={SENTENCE_STRUCTURE_OPTIONS}
@@ -118,8 +118,8 @@ export function VoiceStep({ form }: VoiceStepProps) {
       </div>
 
       {/* Language Style */}
-      <div>
-        <Label htmlFor="languageStyle">Language Style (Optional)</Label>
+      <div className="space-y-2">
+        <Label htmlFor="languageStyle" className="text-base">Language Style (Optional)</Label>
         <Input
           id="languageStyle"
           placeholder="e.g., Shakespearean, Modern slang, Corporate speak"
@@ -130,7 +130,7 @@ export function VoiceStep({ form }: VoiceStepProps) {
 
       {/* Speech Patterns */}
       <div className="space-y-3">
-        <Label>Speech Patterns (Optional)</Label>
+        <Label className="text-base">Speech Patterns (Optional)</Label>
         <p className="text-xs text-muted-foreground">
           Add specific phrases or patterns your character uses frequently
         </p>

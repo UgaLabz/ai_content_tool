@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { MoreVertical, Edit, Trash2, Copy } from 'lucide-react'
-import { Character } from '@/types/api.types'
+import type { Character } from '@/types/api.types'
 import { cn } from '@/utils/cn'
 import {
   DropdownMenu,
@@ -29,6 +29,11 @@ export function CharacterCard({
   onClick,
   className,
 }: CharacterCardProps) {
+  // Safety check for invalid character data
+  if (!character || !character.name) {
+    return null
+  }
+
   const handleCardClick = () => {
     if (onClick) {
       onClick(character)
@@ -42,6 +47,7 @@ export function CharacterCard({
 
   return (
     <Card
+      data-testid="character-card"
       className={cn(
         'group cursor-pointer transition-all hover:shadow-md',
         className
@@ -61,7 +67,7 @@ export function CharacterCard({
             ) : (
               <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
                 <span className="text-xl font-semibold text-muted-foreground">
-                  {character.name[0]?.toUpperCase()}
+                  {character.name?.[0]?.toUpperCase() || '?'}
                 </span>
               </div>
             )}
@@ -69,9 +75,9 @@ export function CharacterCard({
             {/* Info */}
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-lg truncate">{character.name}</h3>
-              {character.bio && (
+              {character.background && (
                 <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                  {character.bio}
+                  {character.background}
                 </p>
               )}
               
@@ -142,9 +148,9 @@ export function CharacterCard({
 
       <CardFooter className="px-6 py-3 bg-muted/50">
         <div className="flex items-center justify-between w-full text-xs text-muted-foreground">
-          <span>Created: {new Date(character.created_at).toLocaleDateString()}</span>
-          {character.memories && character.memories.length > 0 && (
-            <span>{character.memories.length} memories</span>
+          <span>Created: {new Date(character.createdAt).toLocaleDateString()}</span>
+          {character.memoryAnchors && character.memoryAnchors.length > 0 && (
+            <span>{character.memoryAnchors.length} memory anchors</span>
           )}
         </div>
       </CardFooter>

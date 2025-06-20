@@ -1,8 +1,7 @@
-import { UseFormReturn } from 'react-hook-form'
-import { User } from 'lucide-react'
+import type { UseFormReturn } from 'react-hook-form'
 import { Label } from '@/components/ui/Label'
 import { Input } from '@/components/ui/Input'
-import { CharacterFormData } from '@/types/character.types'
+import type { CharacterFormData } from '@/types/character.types'
 import { AvatarUpload } from '../AvatarUpload'
 
 interface BasicInfoStepProps {
@@ -14,36 +13,37 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
   const avatar = watch('avatar')
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-semibold">Basic Information</h3>
-        <p className="text-sm text-muted-foreground">
+        <h3 className="text-xl font-semibold text-foreground">Basic Information</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
           Let's start with the basics of your character
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {/* Avatar Upload */}
-        <div>
-          <Label>Avatar</Label>
+        <div className="space-y-2">
+          <Label className="text-base">Avatar</Label>
           <AvatarUpload
             value={avatar}
             onChange={(url) => setValue('avatar', url)}
-            className="mt-2"
           />
         </div>
 
         {/* Character Name */}
-        <div>
-          <Label htmlFor="name">Character Name *</Label>
+        <div className="space-y-2">
+          <Label htmlFor="name" className="text-base">
+            Character Name <span className="text-destructive">*</span>
+          </Label>
           <Input
             id="name"
             placeholder="Enter character name"
-            className="mt-2"
+            className="bg-background"
             {...register('name')}
           />
           {errors.name && (
-            <p className="mt-1 text-sm text-destructive">
+            <p className="text-sm text-destructive">
               {errors.name.message}
             </p>
           )}

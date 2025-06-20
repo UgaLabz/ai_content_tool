@@ -1,6 +1,7 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios from 'axios'
+import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 import { handleApiError } from '@/utils/errors'
-import { ApiResponse } from '@/types/api.types'
+import type { ApiResponse } from '@/types/api.types'
 
 class ApiClient {
   private client: AxiosInstance
@@ -33,9 +34,12 @@ class ApiClient {
 
         // Log request in debug mode
         if (import.meta.env.VITE_ENABLE_DEBUG === 'true') {
+          const fullUrl = config.url?.startsWith('http') 
+            ? config.url 
+            : `${config.baseURL || ''}${config.url || ''}`
           console.log('API Request:', {
             method: config.method,
-            url: config.url,
+            url: fullUrl,
             data: config.data,
             params: config.params,
           })
@@ -66,6 +70,9 @@ class ApiClient {
         // Log error in debug mode
         if (import.meta.env.VITE_ENABLE_DEBUG === 'true') {
           console.error('API Error:', error)
+          if (error.response?.data) {
+            console.error('API Error Details:', error.response.data)
+          }
         }
 
         // Handle auth errors globally
@@ -97,9 +104,9 @@ class ApiClient {
   async get<T>(
     url: string,
     config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> {
+  ): Promise<T> {
     try {
-      const response = await this.client.get<ApiResponse<T>>(url, config)
+      const response = await this.client.get<T>(url, config)
       return response.data
     } catch (error) {
       throw handleApiError(error)
@@ -148,9 +155,9 @@ class ApiClient {
   async delete<T>(
     url: string,
     config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> {
+  ): Promise<T> {
     try {
-      const response = await this.client.delete<ApiResponse<T>>(url, config)
+      const response = await this.client.delete<T>(url, config)
       return response.data
     } catch (error) {
       throw handleApiError(error)
@@ -162,7 +169,7 @@ class ApiClient {
     url: string,
     key: string,
     config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> {
+  ): Promise<T> {
     // Cancel any existing request with the same key
     this.cancelRequest(key)
 
@@ -202,7 +209,7 @@ class ApiClient {
     file: File,
     additionalData?: Record<string, unknown>,
     onProgress?: (progress: number) => void
-  ): Promise<ApiResponse<T>> {
+  ): Promise<T> {
     const formData = new FormData()
     formData.append('file', file)
 
@@ -213,7 +220,7 @@ class ApiClient {
     }
 
     try {
-      const response = await this.client.post<ApiResponse<T>>(url, formData, {
+      const response = await this.client.post<T>(url, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

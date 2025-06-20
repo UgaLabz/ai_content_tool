@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { render, screen } from '@/test/utils'
 import { PersonalityStep } from '../PersonalityStep'
-import { CharacterFormData, characterFormSchema } from '@/types/character.types'
+import { type CharacterFormData, characterFormSchema } from '@/types/character.types'
 
 const TestWrapper = () => {
   const form = useForm<CharacterFormData>({

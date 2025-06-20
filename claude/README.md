@@ -28,11 +28,15 @@ A privacy-first AI content generation platform with support for local LLMs (Olla
   - Memory management
   - Model-specific prompt templates
   - Consistency scoring
+  - Visual character creation interface
+  - Character gallery with search and filtering
 - 🚀 **High Performance**
   - Streaming support (SSE/WebSocket)
   - Connection pooling
   - Request queuing
   - Resource monitoring
+  - Performance monitoring with Web Vitals
+  - Loading skeletons for better perceived performance
 - 🛡️ **Privacy First**
   - No data leaves your infrastructure
   - Local model execution
@@ -43,6 +47,12 @@ A privacy-first AI content generation platform with support for local LLMs (Olla
   - Text-to-Speech
   - Speech-to-Text
   - Embeddings
+- 🎨 **Modern UI/UX**
+  - Dark mode support with theme toggle
+  - Responsive design with Tailwind CSS
+  - Accessibility-first component design
+  - Error boundaries for graceful error handling
+  - Image compression for optimized avatars
 
 ## Quick Start
 

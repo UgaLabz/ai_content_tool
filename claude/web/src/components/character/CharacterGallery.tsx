@@ -3,7 +3,7 @@ import { Search, Filter, SortAsc, Grid, List } from 'lucide-react'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { CharacterCard } from './CharacterCard'
-import { Character } from '@/types/api.types'
+import type { Character } from '@/types/api.types'
 import {
   Select,
   SelectContent,
@@ -22,7 +22,7 @@ interface CharacterGalleryProps {
   className?: string
 }
 
-type SortOption = 'name' | 'created' | 'updated' | 'memories'
+type SortOption = 'name' | 'created' | 'updated' | 'popularity'
 type ViewMode = 'grid' | 'list'
 
 export function CharacterGallery({
@@ -56,7 +56,7 @@ export function CharacterGallery({
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(character => 
         character.name.toLowerCase().includes(query) ||
-        character.bio?.toLowerCase().includes(query) ||
+        character.background?.toLowerCase().includes(query) ||
         character.personality?.traits?.some(trait => 
           trait.toLowerCase().includes(query)
         )
@@ -80,17 +80,17 @@ export function CharacterGallery({
         break
       case 'created':
         sorted.sort((a, b) => 
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )
         break
       case 'updated':
         sorted.sort((a, b) => 
-          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
         )
         break
-      case 'memories':
+      case 'popularity':
         sorted.sort((a, b) => 
-          (b.memories?.length || 0) - (a.memories?.length || 0)
+          (b.stats?.popularityScore || 0) - (a.stats?.popularityScore || 0)
         )
         break
     }
@@ -131,7 +131,7 @@ export function CharacterGallery({
               <SelectItem value="name">Name</SelectItem>
               <SelectItem value="created">Recently Created</SelectItem>
               <SelectItem value="updated">Recently Updated</SelectItem>
-              <SelectItem value="memories">Most Memories</SelectItem>
+              <SelectItem value="popularity">Most Popular</SelectItem>
             </SelectContent>
           </Select>
 
@@ -209,6 +209,7 @@ export function CharacterGallery({
         </div>
       ) : (
         <div
+          data-testid="character-grid"
           className={cn(
             viewMode === 'grid'
               ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'

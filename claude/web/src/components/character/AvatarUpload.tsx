@@ -3,6 +3,7 @@ import { useDropzone } from 'react-dropzone'
 import { Upload, User, X } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
+import { compressImage } from '@/utils/imageUtils'
 
 interface AvatarUploadProps {
   value?: string
@@ -11,17 +12,24 @@ interface AvatarUploadProps {
 }
 
 export function AvatarUpload({ value, onChange, className }: AvatarUploadProps) {
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0]
     if (file && file.size <= 5 * 1024 * 1024) { // 5MB limit
-      // Read file as data URL
-      const reader = new FileReader()
-      reader.onload = () => {
-        if (reader.result) {
-          onChange(reader.result as string)
+      try {
+        // Compress image before uploading
+        const compressedImage = await compressImage(file, 400, 400, 0.8)
+        onChange(compressedImage)
+      } catch (error) {
+        console.error('Failed to compress image:', error)
+        // Fallback to original if compression fails
+        const reader = new FileReader()
+        reader.onload = () => {
+          if (reader.result) {
+            onChange(reader.result as string)
+          }
         }
+        reader.readAsDataURL(file)
       }
-      reader.readAsDataURL(file)
     }
   }, [onChange])
 

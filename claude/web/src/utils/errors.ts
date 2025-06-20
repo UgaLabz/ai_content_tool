@@ -1,15 +1,22 @@
 import { AxiosError } from 'axios'
-import { ApiError } from '@/types/api.types'
+import type { ApiError } from '@/types/api.types'
 
 export class AppError extends Error {
+  code: string
+  statusCode?: number
+  details?: Record<string, unknown>
+
   constructor(
-    public code: string,
+    code: string,
     message: string,
-    public statusCode?: number,
-    public details?: Record<string, unknown>
+    statusCode?: number,
+    details?: Record<string, unknown>
   ) {
     super(message)
     this.name = 'AppError'
+    this.code = code
+    this.statusCode = statusCode
+    this.details = details
   }
 }
 

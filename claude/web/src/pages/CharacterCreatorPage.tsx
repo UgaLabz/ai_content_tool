@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { CharacterCreatorForm } from '@/components/character/CharacterCreatorForm'
-import { CharacterFormData } from '@/types/character.types'
+import type { CharacterFormData } from '@/types/character.types'
 import { characterService } from '@/services/api'
 
 export function CharacterCreatorPage() {
-  const [isCreating, setIsCreating] = useState(false)
+  const [, setIsCreating] = useState(false)
 
   const handleSubmit = async (data: CharacterFormData) => {
     setIsCreating(true)

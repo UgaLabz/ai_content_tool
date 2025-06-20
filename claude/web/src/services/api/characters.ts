@@ -1,5 +1,7 @@
 import { apiClient } from './client'
-import { Character, ApiResponse } from '@/types/api.types'
+import type { Character } from '@/types/api.types'
+import { mapToAPIFormat } from './character-mapper'
+import { mapAPIResponseArray, mapAPIResponseToCharacter } from './character-response-mapper'
 
 export interface CreateCharacterDto {
   name: string
@@ -21,6 +23,11 @@ export interface CreateCharacterDto {
   }
   catchphrases?: string[]
   background?: string
+  relationships?: {
+    characterId: string
+    type: 'friend' | 'rival' | 'mentor' | 'student' | 'family' | 'colleague'
+    description: string
+  }[]
 }
 
 export interface UpdateCharacterDto extends Partial<CreateCharacterDto> {
@@ -39,39 +46,72 @@ export interface CharacterFilters {
 class CharacterService {
   private basePath = '/characters'
 
+  constructor() {
+    // Bind all methods to preserve 'this' context
+    this.getAll = this.getAll.bind(this)
+    this.getById = this.getById.bind(this)
+    this.create = this.create.bind(this)
+    this.update = this.update.bind(this)
+    this.delete = this.delete.bind(this)
+    this.duplicate = this.duplicate.bind(this)
+    this.uploadAvatar = this.uploadAvatar.bind(this)
+    this.generateSample = this.generateSample.bind(this)
+    this.export = this.export.bind(this)
+    this.import = this.import.bind(this)
+  }
+
   async getAll(filters?: CharacterFilters): Promise<Character[]> {
-    const response = await apiClient.get<Character[]>(this.basePath, {
-      params: filters,
-    })
-    return response.data || []
+    try {
+      const response = await apiClient.get<any[]>(this.basePath, {
+        params: filters,
+      })
+      if (!response || !Array.isArray(response)) {
+        return []
+      }
+      return mapAPIResponseArray(response)
+    } catch (error) {
+      console.error('Error fetching characters:', error)
+      return []
+    }
   }
 
   async getById(id: string): Promise<Character> {
-    const response = await apiClient.get<Character>(`${this.basePath}/${id}`)
-    if (!response.data) {
+    const response = await apiClient.get<any>(`${this.basePath}/${id}`)
+    if (!response) {
       throw new Error('Character not found')
     }
-    return response.data
+    return mapAPIResponseToCharacter(response)
   }
 
   async create(data: CreateCharacterDto): Promise<Character> {
-    const response = await apiClient.post<Character>(this.basePath, data)
-    if (!response.data) {
+    // Ensure avatar is not too large (limit to ~100KB base64)
+    if (data.avatar && data.avatar.length > 100000) {
+      console.warn('Avatar image too large, will be compressed on server')
+    }
+    
+    console.log('Creating character with path:', this.basePath)
+    console.log('Character data:', data)
+    
+    // Map to API format
+    const apiData = mapToAPIFormat(data)
+    console.log('Mapped API data:', apiData)
+    
+    const response = await apiClient.post<any>(this.basePath, apiData)
+    if (!response) {
       throw new Error('Failed to create character')
     }
-    return response.data
+    return mapAPIResponseToCharacter(response)
   }
 
-  async update(data: UpdateCharacterDto): Promise<Character> {
-    const { id, ...updateData } = data
+  async update(id: string, data: Partial<CreateCharacterDto>): Promise<Character> {
     const response = await apiClient.put<Character>(
       `${this.basePath}/${id}`,
-      updateData
+      data
     )
-    if (!response.data) {
+    if (!response) {
       throw new Error('Failed to update character')
     }
-    return response.data
+    return response
   }
 
   async delete(id: string): Promise<void> {
@@ -89,10 +129,10 @@ class CharacterService {
       undefined,
       onProgress
     )
-    if (!response.data?.url) {
+    if (!response?.url) {
       throw new Error('Failed to upload avatar')
     }
-    return response.data.url
+    return response.url
   }
 
   async generateSample(
@@ -103,20 +143,20 @@ class CharacterService {
       `${this.basePath}/${characterId}/generate-sample`,
       { prompt }
     )
-    if (!response.data) {
+    if (!response) {
       throw new Error('Failed to generate sample')
     }
-    return response.data
+    return response
   }
 
   async getStats(characterId: string): Promise<Character['stats']> {
     const response = await apiClient.get<Character['stats']>(
       `${this.basePath}/${characterId}/stats`
     )
-    if (!response.data) {
+    if (!response) {
       throw new Error('Failed to get character stats')
     }
-    return response.data
+    return response
   }
 
   async duplicate(characterId: string, name: string): Promise<Character> {
@@ -124,10 +164,10 @@ class CharacterService {
       `${this.basePath}/${characterId}/duplicate`,
       { name }
     )
-    if (!response.data) {
+    if (!response) {
       throw new Error('Failed to duplicate character')
     }
-    return response.data
+    return response
   }
 
   async export(characterId: string): Promise<Blob> {
@@ -137,7 +177,7 @@ class CharacterService {
         responseType: 'blob',
       }
     )
-    return response.data as Blob
+    return response as Blob
   }
 
   async import(file: File): Promise<Character> {
@@ -145,10 +185,10 @@ class CharacterService {
       `${this.basePath}/import`,
       file
     )
-    if (!response.data) {
+    if (!response) {
       throw new Error('Failed to import character')
     }
-    return response.data
+    return response
   }
 }
 

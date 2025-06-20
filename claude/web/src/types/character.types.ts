@@ -21,6 +21,11 @@ export const characterFormSchema = z.object({
   }),
   catchphrases: z.array(z.string()).optional(),
   background: z.string().optional(),
+  relationships: z.array(z.object({
+    characterId: z.string(),
+    type: z.enum(['friend', 'rival', 'mentor', 'student', 'family', 'colleague']),
+    description: z.string(),
+  })).optional(),
 })
 
 export type CharacterFormData = z.infer<typeof characterFormSchema>

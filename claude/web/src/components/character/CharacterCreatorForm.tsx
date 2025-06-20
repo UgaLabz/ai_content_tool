@@ -8,9 +8,9 @@ import { cn } from '@/utils/cn'
 import { useFormPersistence } from '@/hooks/useFormPersistence'
 import { useToast } from '@/hooks/useToast'
 import { 
-  CharacterFormData, 
+  type CharacterFormData, 
   characterFormSchema, 
-  FormStep, 
+  type FormStep, 
   FORM_STEPS, 
   STEP_LABELS 
 } from '@/types/character.types'
@@ -173,7 +173,7 @@ export function CharacterCreatorForm({ onSubmit, onCancel }: CharacterCreatorFor
       </div>
 
       {/* Form content */}
-      <Card className="p-6">
+      <Card className="p-8">
         <form onSubmit={handleSubmit}>
           <div className="min-h-[400px]">{renderStep()}</div>
 

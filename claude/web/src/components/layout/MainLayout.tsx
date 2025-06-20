@@ -1,5 +1,6 @@
 import React from 'react'
 import { cn } from '@/utils/cn'
+import { ThemeToggle } from '@/components/theme/ThemeToggle'
 
 interface MainLayoutProps {
   children: React.ReactNode
@@ -42,6 +43,7 @@ function Header() {
           >
             Library
           </a>
+          <ThemeToggle />
         </nav>
       </div>
     </header>

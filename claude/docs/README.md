@@ -94,10 +94,14 @@ DATABASE_URL=postgresql://user:pass@localhost/content_db
 
 - [Architecture Overview](ARCHITECTURE.md)
 - [API Documentation](API.md)
+- [Frontend Development Guide](frontend-guide.md)
+- [Character System Guide](character-system.md)
 - [Local LLM Implementation Plan](plans/local_llm_implementation_plan.md)
 - [Original Claude Integration Plan](plans/claude_plan.md)
 - [Security Guide](SECURITY.md)
 - [Deployment Guide](DEPLOYMENT.md)
+- [Configuration Guide](CONFIGURATION_GUIDE.md)
+- [Operations Guide](operations-guide.md)
 
 ---
 Last updated: 2025-01-19
