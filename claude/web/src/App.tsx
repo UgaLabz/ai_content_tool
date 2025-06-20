@@ -1,9 +1,21 @@
+import { useState } from 'react'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
+import { CharacterCreatorPage } from '@/pages/CharacterCreatorPage'
 
 function App() {
+  const [showCharacterCreator, setShowCharacterCreator] = useState(false)
+
+  if (showCharacterCreator) {
+    return (
+      <MainLayout>
+        <CharacterCreatorPage />
+      </MainLayout>
+    )
+  }
+
   return (
     <MainLayout>
       <PageLayout
@@ -19,7 +31,12 @@ function App() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full">Get Started</Button>
+              <Button 
+                className="w-full"
+                onClick={() => setShowCharacterCreator(true)}
+              >
+                Get Started
+              </Button>
             </CardContent>
           </Card>
           
