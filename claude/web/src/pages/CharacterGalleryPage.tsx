@@ -3,6 +3,7 @@ import { Plus, Users } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { CharacterGallery } from '@/components/character/CharacterGallery'
 import { CharacterCreatorForm } from '@/components/character/CharacterCreatorForm'
+import { CharacterDetailView } from '@/components/character/CharacterDetailView'
 import { EmptyState } from '@/components/common/EmptyState'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Character } from '@/types/api.types'
@@ -93,7 +94,10 @@ export function CharacterGalleryPage() {
 
   const handleCharacterSelect = (character: Character) => {
     setSelectedCharacter(character)
-    // TODO: Navigate to character detail page
+  }
+
+  const handleBackFromDetail = () => {
+    setSelectedCharacter(null)
   }
 
   if (showCreator) {
@@ -107,6 +111,20 @@ export function CharacterGalleryPage() {
           onCancel={() => setShowCreator(false)}
         />
       </PageLayout>
+    )
+  }
+
+  if (selectedCharacter) {
+    return (
+      <CharacterDetailView
+        character={selectedCharacter}
+        onBack={handleBackFromDetail}
+        onEdit={handleEditCharacter}
+        onDelete={(character) => {
+          handleDeleteCharacter(character)
+          setSelectedCharacter(null)
+        }}
+      />
     )
   }
 

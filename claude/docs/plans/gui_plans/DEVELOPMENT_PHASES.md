@@ -119,13 +119,15 @@ Create a fully functional character management system that serves as the foundat
 - Character detail view: [WIREFRAMES.md](./WIREFRAMES.md#5-character-detail-view)
 - State management: [TECHNICAL_ARCHITECTURE.md](./TECHNICAL_ARCHITECTURE.md#state-management-strategy)
 ### Phase 1.3.1: Character List
-- [ ] **Character List**
-  - [ ] Create gallery view
-  - [ ] Build character cards
-  - [ ] Add search functionality
-  - [ ] Implement filtering
-  - [ ] Add sorting options
-  - [ ] Create empty states
+- [x] **Character List**
+  - [x] Create gallery view
+  - [x] Build character cards
+  - [x] Add search functionality
+  - [x] Implement filtering
+  - [x] Add sorting options
+  - [x] Create empty states
+  - [x] Update relevant docs
+  - [x] Commit: `git commit -m "feat: Phase 1.3.1 - Character gallery with search and filtering"`
 ### Phase 1.3.2: Character Details
 - [ ] **Character Details**
   - [ ] Build detail view
