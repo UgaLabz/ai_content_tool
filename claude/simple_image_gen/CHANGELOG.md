@@ -2,6 +2,32 @@
 
 All notable changes to the Simple AI Image Generator will be documented in this file.
 
+## [0.3.0] - 2025-06-21
+
+### Phase 2: Model Configuration System
+
+#### Added
+- Comprehensive `model_configs.json` with specifications for 7 models
+- `ModelConfigManager` class for configuration management
+- Workflow templates for SD 1.5, SD 2.1, and SDXL
+- Model validation and installation checking
+- VRAM compatibility checking
+- Download source information (HuggingFace, CivitAI)
+- Resolution management by aspect ratio
+- Generation time estimation
+- Comprehensive test suite for configuration system
+
+#### Documentation
+- Created MODEL_CONFIGURATION.md with detailed configuration guide
+- Created ARCHITECTURE.md documenting system design
+- Added model installation and troubleshooting guides
+
+#### Technical Details
+- JSON-based configuration for easy extensibility
+- Template-based workflow system with variable substitution
+- Modular design supporting multiple model types
+- Built-in validation for model files and VRAM requirements
+
 ## [0.2.0] - 2025-06-21
 
 ### Phase 1: Multi-Model Support

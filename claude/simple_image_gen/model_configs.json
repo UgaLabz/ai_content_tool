@@ -1,0 +1,277 @@
+{
+  "models": {
+    "stable-diffusion-15": {
+      "display_name": "Stable Diffusion 1.5",
+      "type": "sd15",
+      "checkpoint_files": [
+        "v1-5-pruned-emaonly.ckpt",
+        "v1-5-pruned.ckpt",
+        "sd-v1-5.ckpt"
+      ],
+      "vae_files": [
+        "vae-ft-mse-840000-ema-pruned.safetensors",
+        "vae-ft-mse-840000-ema-pruned.ckpt"
+      ],
+      "vram_requirements": {
+        "minimum": 4,
+        "recommended": 6,
+        "optimal": 8
+      },
+      "resolutions": {
+        "square": ["512x512", "768x768"],
+        "landscape": ["768x512", "896x512", "1024x512"],
+        "portrait": ["512x768", "512x896", "512x1024"],
+        "default": "512x512"
+      },
+      "optimal_settings": {
+        "steps": 20,
+        "cfg_scale": 7.5,
+        "sampler": "euler_a",
+        "scheduler": "normal"
+      },
+      "capabilities": {
+        "supports_inpainting": true,
+        "supports_img2img": true,
+        "supports_controlnet": true,
+        "supports_lora": true
+      }
+    },
+    "stable-diffusion-21": {
+      "display_name": "Stable Diffusion 2.1",
+      "type": "sd21",
+      "checkpoint_files": [
+        "v2-1_768-ema-pruned.ckpt",
+        "v2-1_768-ema-pruned.safetensors",
+        "768-v-ema.ckpt"
+      ],
+      "vae_files": [],
+      "vram_requirements": {
+        "minimum": 6,
+        "recommended": 8,
+        "optimal": 10
+      },
+      "resolutions": {
+        "square": ["768x768", "1024x1024"],
+        "landscape": ["1024x768", "1152x768", "1280x768"],
+        "portrait": ["768x1024", "768x1152", "768x1280"],
+        "default": "768x768"
+      },
+      "optimal_settings": {
+        "steps": 25,
+        "cfg_scale": 7.5,
+        "sampler": "dpmpp_2m",
+        "scheduler": "karras"
+      },
+      "capabilities": {
+        "supports_inpainting": true,
+        "supports_img2img": true,
+        "supports_controlnet": false,
+        "supports_lora": true
+      }
+    },
+    "sdxl": {
+      "display_name": "SDXL Base",
+      "type": "sdxl",
+      "checkpoint_files": [
+        "sd_xl_base_1.0.safetensors",
+        "sd_xl_base_1.0_0.9vae.safetensors",
+        "sdxl_base_1.0.safetensors"
+      ],
+      "vae_files": [
+        "sdxl_vae.safetensors"
+      ],
+      "refiner_files": [
+        "sd_xl_refiner_1.0.safetensors",
+        "sd_xl_refiner_1.0_0.9vae.safetensors"
+      ],
+      "vram_requirements": {
+        "minimum": 8,
+        "recommended": 10,
+        "optimal": 12
+      },
+      "resolutions": {
+        "square": ["1024x1024"],
+        "landscape": ["1152x896", "1216x832", "1344x768", "1536x640"],
+        "portrait": ["896x1152", "832x1216", "768x1344", "640x1536"],
+        "default": "1024x1024"
+      },
+      "optimal_settings": {
+        "steps": 30,
+        "cfg_scale": 7.0,
+        "sampler": "dpmpp_2m",
+        "scheduler": "karras",
+        "use_refiner": true,
+        "refiner_switch_at": 0.8
+      },
+      "capabilities": {
+        "supports_inpainting": true,
+        "supports_img2img": true,
+        "supports_controlnet": true,
+        "supports_lora": true
+      }
+    },
+    "openjourney": {
+      "display_name": "OpenJourney",
+      "type": "sd15",
+      "checkpoint_files": [
+        "openjourney-v4.ckpt",
+        "openjourney-v4.safetensors",
+        "mdjrny-v4.ckpt"
+      ],
+      "vae_files": [],
+      "vram_requirements": {
+        "minimum": 4,
+        "recommended": 6,
+        "optimal": 8
+      },
+      "resolutions": {
+        "square": ["512x512", "768x768"],
+        "landscape": ["768x512", "896x512"],
+        "portrait": ["512x768", "512x896"],
+        "default": "512x512"
+      },
+      "optimal_settings": {
+        "steps": 25,
+        "cfg_scale": 7.0,
+        "sampler": "euler_a",
+        "scheduler": "normal",
+        "prompt_prefix": "mdjrny-v4 style"
+      },
+      "capabilities": {
+        "supports_inpainting": true,
+        "supports_img2img": true,
+        "supports_controlnet": true,
+        "supports_lora": true
+      }
+    },
+    "dreamshaper": {
+      "display_name": "DreamShaper",
+      "type": "sd15",
+      "checkpoint_files": [
+        "dreamshaper_8.safetensors",
+        "dreamshaper_7.safetensors",
+        "dreamshaper_6.31BakedVae.safetensors"
+      ],
+      "vae_files": [],
+      "vram_requirements": {
+        "minimum": 4,
+        "recommended": 6,
+        "optimal": 8
+      },
+      "resolutions": {
+        "square": ["512x512", "768x768"],
+        "landscape": ["768x512", "896x512", "1024x512"],
+        "portrait": ["512x768", "512x896", "512x1024"],
+        "default": "512x512"
+      },
+      "optimal_settings": {
+        "steps": 20,
+        "cfg_scale": 7.0,
+        "sampler": "dpmpp_sde",
+        "scheduler": "karras"
+      },
+      "capabilities": {
+        "supports_inpainting": true,
+        "supports_img2img": true,
+        "supports_controlnet": true,
+        "supports_lora": true
+      }
+    },
+    "kandinsky-22": {
+      "display_name": "Kandinsky 2.2",
+      "type": "kandinsky",
+      "checkpoint_files": [
+        "kandinsky-2-2-decoder.safetensors",
+        "kandinsky-2-2-prior.safetensors"
+      ],
+      "vae_files": [],
+      "vram_requirements": {
+        "minimum": 8,
+        "recommended": 10,
+        "optimal": 12
+      },
+      "resolutions": {
+        "square": ["768x768", "1024x1024"],
+        "landscape": ["1024x768", "1152x768"],
+        "portrait": ["768x1024", "768x1152"],
+        "default": "768x768"
+      },
+      "optimal_settings": {
+        "steps": 25,
+        "cfg_scale": 4.0,
+        "sampler": "ddpm",
+        "scheduler": "normal",
+        "prior_steps": 25,
+        "prior_cfg_scale": 4.0
+      },
+      "capabilities": {
+        "supports_inpainting": true,
+        "supports_img2img": true,
+        "supports_controlnet": false,
+        "supports_lora": false
+      }
+    },
+    "deepfloyd-if": {
+      "display_name": "DeepFloyd IF",
+      "type": "deepfloyd",
+      "checkpoint_files": [
+        "IF-I-XL-v1.0.safetensors",
+        "IF-II-L-v1.0.safetensors",
+        "IF-III-L-v1.0.safetensors"
+      ],
+      "vae_files": [],
+      "vram_requirements": {
+        "minimum": 16,
+        "recommended": 20,
+        "optimal": 24
+      },
+      "resolutions": {
+        "stage1": ["64x64"],
+        "stage2": ["256x256"],
+        "stage3": ["1024x1024"],
+        "default": "1024x1024"
+      },
+      "optimal_settings": {
+        "stage1_steps": 100,
+        "stage2_steps": 50,
+        "stage3_steps": 40,
+        "cfg_scale": 7.0,
+        "sampler": "dpmpp_2m",
+        "scheduler": "normal"
+      },
+      "capabilities": {
+        "supports_inpainting": false,
+        "supports_img2img": false,
+        "supports_controlnet": false,
+        "supports_lora": false
+      }
+    }
+  },
+  "workflow_templates": {
+    "sd15": "workflows/sd15_template.json",
+    "sd21": "workflows/sd21_template.json",
+    "sdxl": "workflows/sdxl_template.json",
+    "kandinsky": "workflows/kandinsky_template.json",
+    "deepfloyd": "workflows/deepfloyd_template.json"
+  },
+  "model_paths": {
+    "checkpoints": "~/ComfyUI/models/checkpoints/",
+    "vae": "~/ComfyUI/models/vae/",
+    "loras": "~/ComfyUI/models/loras/",
+    "controlnet": "~/ComfyUI/models/controlnet/",
+    "embeddings": "~/ComfyUI/models/embeddings/"
+  },
+  "download_sources": {
+    "huggingface": {
+      "stable-diffusion-15": "runwayml/stable-diffusion-v1-5",
+      "stable-diffusion-21": "stabilityai/stable-diffusion-2-1",
+      "sdxl": "stabilityai/stable-diffusion-xl-base-1.0",
+      "kandinsky-22": "kandinsky-community/kandinsky-2-2-decoder",
+      "deepfloyd-if": "DeepFloyd/IF-I-XL-v1.0"
+    },
+    "civitai": {
+      "openjourney": "https://civitai.com/models/86698/openjourney",
+      "dreamshaper": "https://civitai.com/models/4384/dreamshaper"
+    }
+  }
+}
