@@ -1,0 +1,6 @@
+We were working on the program in /home/rese/Documents/ai_content_tool/claude1 I think I made it to complicated from the start. The idea is to have local llms help me create content for my characters. I make memes with images and videos and I want to use AI to help me create content with my characters. I think this time around I want to start small. I want a simple gui that takes a promt and generates a png file of the llms interpitation of my prompt. I know we had some issues with ollama and had to run it in a restricted enviroment. I want to make sure it is stable and reliable and wont crash the computer. I encourage youto look over the  docs of claud1 to get an understanding of the backend that is already built on the computer like ollama. @/home/rese/Documents/ai_content_tool/claude1/docs Let me know of questions you have.
+
+### Supported Local LLM Runtimes:
+- **Ollama**: Command-line focused, easy API integration
+- **LM Studio**: GUI-based with TypeScript SDK
+- **LocalAI**: OpenAI-compatible API drop-in replacement

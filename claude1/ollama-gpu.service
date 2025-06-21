@@ -1,0 +1,23 @@
+[Unit]
+Description=Ollama with AMD GPU Support
+After=network.target
+
+[Service]
+Type=simple
+User=ollama
+Group=ollama
+Environment="HSA_OVERRIDE_GFX_VERSION=10.3.0"
+Environment="ROCR_VISIBLE_DEVICES=0"
+Environment="GPU_DEVICE_ORDINAL=0"
+Environment="HIP_VISIBLE_DEVICES=0"
+Environment="OLLAMA_HOST=0.0.0.0:11434"
+ExecStart=/usr/local/bin/ollama serve
+Restart=on-failure
+RestartSec=10
+
+# Resource limits to prevent system crashes
+MemoryMax=12G
+CPUQuota=80%
+
+[Install]
+WantedBy=multi-user.target
