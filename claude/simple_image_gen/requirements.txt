@@ -1,0 +1,6 @@
+# Simple GUI dependencies for ComfyUI integration
+Pillow>=10.0.0
+requests>=2.31.0
+
+# Optional: For standalone version (without ComfyUI)
+# customtkinter>=5.2.0  # Modern looking GUI
