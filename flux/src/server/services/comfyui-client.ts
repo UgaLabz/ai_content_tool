@@ -21,6 +21,11 @@ interface WorkflowParams {
   scheduler?: string
   outputPath?: string
   filenameOverride?: string
+  lora?: {
+    name: string
+    strength: number
+  }
+  negativePrompt?: string
 }
 
 interface QueueItem {
@@ -44,6 +49,7 @@ export class ComfyUIClient {
   private ws: WebSocket | null = null
   private queue: Map<string, QueueItem> = new Map()
   private workflowTemplate: any
+  private loraWorkflowTemplate: any
   private comfyOutputPath: string = process.env.COMFYUI_OUTPUT_PATH || '/media/rese/AL/ComfyUI/output'
 
   constructor(config: ComfyUIConfig) {
@@ -52,13 +58,21 @@ export class ComfyUIClient {
   }
 
   async init() {
-    // Load workflow template
+    // Load workflow templates
     const workflowPath = path.join(
       process.cwd(),
       'src/server/workflows/flux-schnell-workflow-template.json'
     )
     const workflowContent = await fs.readFile(workflowPath, 'utf-8')
     this.workflowTemplate = workflowContent
+
+    // Load LoRA workflow template
+    const loraWorkflowPath = path.join(
+      process.cwd(),
+      'src/server/workflows/flux-lora-workflow-template.json'
+    )
+    const loraWorkflowContent = await fs.readFile(loraWorkflowPath, 'utf-8')
+    this.loraWorkflowTemplate = loraWorkflowContent
 
     // Connect WebSocket
     await this.connectWebSocket()
@@ -233,24 +247,43 @@ export class ComfyUIClient {
   }
 
   private prepareWorkflow(params: WorkflowParams): any {
+    // Choose template based on whether LoRA is used
+    const template = params.lora ? this.loraWorkflowTemplate : this.workflowTemplate
+    
     // First parse the template
-    const workflow = JSON.parse(this.workflowTemplate)
+    const workflow = JSON.parse(template)
     
     // Extract the nodes object if it exists (our template format)
     const nodes = workflow.nodes || workflow
     
-    // Update values
-    nodes["6"].inputs.text = params.prompt
-    nodes["17"].inputs.steps = params.steps || 4
-    nodes["17"].inputs.scheduler = params.scheduler || 'simple'
-    nodes["16"].inputs.sampler_name = params.sampler || 'euler'
-    nodes["25"].inputs.noise_seed = params.seed || Math.floor(Math.random() * 1000000)
-    nodes["27"].inputs.width = params.width || 1024
-    nodes["27"].inputs.height = params.height || 1024
+    if (params.lora) {
+      // LoRA workflow node IDs
+      nodes["6"].inputs.text = params.prompt // positive prompt
+      nodes["9"].inputs.text = params.negativePrompt || '' // negative prompt
+      nodes["3"].inputs.steps = params.steps || 4
+      nodes["3"].inputs.scheduler = params.scheduler || 'simple'
+      nodes["3"].inputs.sampler_name = params.sampler || 'euler'
+      nodes["3"].inputs.seed = params.seed || Math.floor(Math.random() * 1000000)
+      nodes["5"].inputs.width = params.width || 1024
+      nodes["5"].inputs.height = params.height || 1024
+      nodes["12"].inputs.lora_name = params.lora.name
+      nodes["12"].inputs.strength_model = params.lora.strength
+      nodes["12"].inputs.strength_clip = params.lora.strength
+    } else {
+      // Standard workflow node IDs
+      nodes["6"].inputs.text = params.prompt
+      nodes["17"].inputs.steps = params.steps || 4
+      nodes["17"].inputs.scheduler = params.scheduler || 'simple'
+      nodes["16"].inputs.sampler_name = params.sampler || 'euler'
+      nodes["25"].inputs.noise_seed = params.seed || Math.floor(Math.random() * 1000000)
+      nodes["27"].inputs.width = params.width || 1024
+      nodes["27"].inputs.height = params.height || 1024
+    }
     
     // Handle filename - if custom filename provided, use it; otherwise generate from prompt
+    const saveNodeId = params.lora ? "10" : "9" // Different node ID for LoRA workflow
     if (params.filenameOverride) {
-      nodes["9"].inputs.filename_prefix = params.filenameOverride
+      nodes[saveNodeId].inputs.filename_prefix = params.filenameOverride
     } else {
       // Generate filename from prompt (first 50 chars, alphanumeric only)
       const cleanPrompt = params.prompt
@@ -258,7 +291,7 @@ export class ComfyUIClient {
         .replace(/[^a-zA-Z0-9]/g, '_')
         .replace(/_+/g, '_')
         .toLowerCase()
-      nodes["9"].inputs.filename_prefix = `flux_${cleanPrompt}_`
+      nodes[saveNodeId].inputs.filename_prefix = `flux_${cleanPrompt}_`
     }
     
     // Note: ComfyUI doesn't support custom output paths via API

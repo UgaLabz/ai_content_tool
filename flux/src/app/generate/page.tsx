@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { PromptInput } from '@/components/generation/prompt-input'
 import { ParameterControls, GenerationParameters } from '@/components/generation/parameter-controls'
 import { OutputSettings, OutputSettings as OutputSettingsType } from '@/components/generation/output-settings'
@@ -11,9 +12,13 @@ import { GenerationQueue } from '@/components/generation/generation-queue'
 import { useGenerationStore } from '@/lib/store'
 import { apiClient } from '@/lib/api-client'
 import { useToast } from '@/hooks/use-toast'
+import type { Character } from '@/server/types/character'
 
-export default function GeneratePage() {
+function GenerateContent() {
   const { toast } = useToast()
+  const searchParams = useSearchParams()
+  const characterId = searchParams.get('character')
+  
   const { 
     setGenerating, 
     setProgress, 
@@ -21,6 +26,7 @@ export default function GeneratePage() {
     addToHistory 
   } = useGenerationStore()
   
+  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null)
   const [parameters, setParameters] = useState<GenerationParameters>({
     width: 1024,
     height: 1024,
@@ -34,6 +40,31 @@ export default function GeneratePage() {
     outputPath: '',
     filenameOverride: ''
   })
+
+  // Load character if specified
+  useEffect(() => {
+    if (characterId) {
+      loadCharacter(parseInt(characterId))
+    }
+  }, [characterId])
+
+  const loadCharacter = async (id: number) => {
+    try {
+      const character = await apiClient.getCharacter(id)
+      setSelectedCharacter(character)
+      toast({
+        title: "Character loaded",
+        description: `Using "${character.name}" for generation`
+      })
+    } catch (error) {
+      console.error('Failed to load character:', error)
+      toast({
+        title: "Failed to load character",
+        description: "Continuing without character settings",
+        variant: "destructive"
+      })
+    }
+  }
   
   useEffect(() => {
     // Set up socket listeners
@@ -71,7 +102,8 @@ export default function GeneratePage() {
       const response = await apiClient.generateImage({
         prompt,
         ...parameters,
-        ...outputSettings
+        ...outputSettings,
+        characterId: selectedCharacter?.id
       })
       
       if (response.success) {
@@ -105,6 +137,30 @@ export default function GeneratePage() {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Left sidebar - Controls */}
       <div className="space-y-6">
+        {selectedCharacter && (
+          <div className="p-4 border rounded-lg bg-accent/50">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold">Using Character</h3>
+              <button
+                onClick={() => setSelectedCharacter(null)}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Clear
+              </button>
+            </div>
+            <p className="text-sm font-medium">{selectedCharacter.name}</p>
+            {selectedCharacter.description && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {selectedCharacter.description}
+              </p>
+            )}
+            {selectedCharacter.lora_path && (
+              <p className="text-xs text-muted-foreground mt-1">
+                LoRA: Enabled
+              </p>
+            )}
+          </div>
+        )}
         <OutputSettings onSettingsChange={setOutputSettings} />
         <PromptInput onGenerate={handleGenerate} />
         <ParameterControls 
@@ -122,5 +178,13 @@ export default function GeneratePage() {
         <ExistingImages outputPath={outputSettings.outputPath || '/media/rese/AL/ComfyUI/output'} />
       </div>
     </div>
+  )
+}
+
+export default function GeneratePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <GenerateContent />
+    </Suspense>
   )
 }

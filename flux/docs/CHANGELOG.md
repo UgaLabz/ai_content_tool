@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2025-06-22
+
+### Added
+- **LoRA Integration (Phase 2)**
+  - LoRA workflow template for ComfyUI
+  - LoRA model scanner service to discover models in /media/rese/AL
+  - LoRA selector component with scan functionality
+  - Character-based generation with automatic LoRA loading
+  - Negative prompt support for character generation
+  - Generation history tracking with character association
+  - API endpoint to scan and catalog LoRA models
+
+### Changed
+- Updated ComfyUI client to support LoRA workflows
+- Enhanced generate endpoint to handle character-based generation
+- Modified generate page to show selected character
+- Character dialog now uses LoRA selector instead of manual path input
+
+### Technical
+- Created separate workflow templates for standard and LoRA generation
+- Implemented automatic LoRA file discovery and validation
+- Added proper prompt merging for character + user prompts
+
 ## [0.6.0] - 2025-06-22
 
 ### Added

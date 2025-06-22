@@ -23,6 +23,7 @@ export interface GenerationParams {
   scheduler?: string
   outputPath?: string
   filenameOverride?: string
+  characterId?: number
 }
 
 export interface GenerationResponse {

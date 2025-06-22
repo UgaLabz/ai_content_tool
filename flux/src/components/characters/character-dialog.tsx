@@ -23,6 +23,7 @@ import {
 import { Info, Plus, X } from 'lucide-react'
 import { apiClient } from '@/lib/api-client'
 import { useToast } from '@/hooks/use-toast'
+import { LoraSelector } from './lora-selector'
 import type { Character, CreateCharacterRequest } from '@/server/types/character'
 
 interface CharacterDialogProps {
@@ -307,25 +308,11 @@ export function CharacterDialog({
               <div className="space-y-4 pt-4 border-t">
                 <h4 className="font-medium">LoRA Settings (Optional)</h4>
                 
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="lora_path">LoRA Model Path</Label>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{tooltips.loraPath}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  <Input
-                    id="lora_path"
-                    value={formData.lora_path}
-                    onChange={(e) => setFormData({ ...formData, lora_path: e.target.value })}
-                    placeholder="/media/rese/AL/models/loras/character.safetensors"
-                  />
-                </div>
+                <LoraSelector
+                  value={formData.lora_path}
+                  onChange={(value) => setFormData({ ...formData, lora_path: value })}
+                  disabled={loading}
+                />
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">

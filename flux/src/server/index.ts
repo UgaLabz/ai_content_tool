@@ -130,6 +130,7 @@ app.post('/api/generate', async (req, res) => {
       scheduler = 'simple',
       outputPath,
       filenameOverride,
+      characterId,
     } = req.body
 
     if (!prompt) {
@@ -143,9 +144,46 @@ app.post('/api/generate', async (req, res) => {
     // Emit start event
     io.emit('generation:start', { id: generationId })
 
+    // Prepare generation parameters
+    let finalPrompt = prompt
+    let negativePrompt = ''
+    let loraConfig = undefined
+
+    // If character is specified, load character data
+    if (characterId) {
+      try {
+        const character = await CharacterModel.findById(characterId)
+        
+        // Combine character base prompt with user prompt
+        finalPrompt = `${character.base_prompt}, ${prompt}`
+        
+        // Use character's negative prompt
+        negativePrompt = character.negative_prompt || ''
+        
+        // Check if character has LoRA
+        if (character.lora_path) {
+          // Verify LoRA file exists
+          const { LoraScanner } = await import('./services/lora-scanner')
+          const loraExists = await LoraScanner.verifyLoraExists(character.lora_path)
+          
+          if (loraExists) {
+            loraConfig = {
+              name: LoraScanner.getComfyUILoraName(character.lora_path),
+              strength: character.lora_strength || 0.8
+            }
+          } else {
+            console.warn(`LoRA file not found for character ${characterId}: ${character.lora_path}`)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load character:', error)
+        // Continue without character data
+      }
+    }
+
     // Start generation
     const imageUrl = await comfyClient.generateImage({
-      prompt,
+      prompt: finalPrompt,
       width,
       height,
       steps,
@@ -154,6 +192,8 @@ app.post('/api/generate', async (req, res) => {
       scheduler,
       outputPath,
       filenameOverride,
+      lora: loraConfig,
+      negativePrompt,
     })
 
     // Emit completion event
@@ -162,12 +202,34 @@ app.post('/api/generate', async (req, res) => {
       url: imageUrl,
     })
 
+    // Save to generation history if character was used
+    if (characterId) {
+      try {
+        await CharacterModel.addToHistory({
+          character_id: characterId,
+          image_path: imageUrl,
+          prompt: finalPrompt,
+          parameters: {
+            width,
+            height,
+            steps,
+            seed: seed || Math.floor(Math.random() * 1000000),
+            sampler,
+            scheduler,
+          },
+          workflow_type: loraConfig ? 'lora' : 'standard'
+        })
+      } catch (error) {
+        console.error('Failed to save generation history:', error)
+      }
+    }
+
     res.json({
       success: true,
       id: generationId,
       url: imageUrl,
       params: {
-        prompt,
+        prompt: finalPrompt,
         width,
         height,
         steps,
@@ -645,6 +707,25 @@ app.get('/api/lora-models', async (req, res) => {
     console.error('Failed to fetch LoRA models:', error)
     res.status(500).json({ 
       error: 'Failed to fetch LoRA models',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+// Scan for LoRA models
+app.post('/api/lora-models/scan', async (req, res) => {
+  try {
+    const { LoraScanner } = await import('./services/lora-scanner')
+    const models = await LoraScanner.scanAndUpdateLoraModels()
+    res.json({
+      success: true,
+      count: models.length,
+      models
+    })
+  } catch (error) {
+    console.error('Failed to scan LoRA models:', error)
+    res.status(500).json({ 
+      error: 'Failed to scan LoRA models',
       details: error instanceof Error ? error.message : 'Unknown error'
     })
   }
