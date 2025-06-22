@@ -1,5 +1,15 @@
 import axios from 'axios'
 import { io, Socket } from 'socket.io-client'
+import type { 
+  Character, 
+  CharacterWithImages, 
+  CreateCharacterRequest,
+  UpdateCharacterRequest,
+  CharacterImage,
+  GenerationHistory,
+  LoraModel,
+  StylePreset
+} from '@/server/types/character'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -177,6 +187,80 @@ class APIClient {
     const response = await this.api.get('/api/images', {
       params: { path }
     })
+    return response.data
+  }
+
+  // Character API methods
+  async createCharacter(data: CreateCharacterRequest): Promise<Character> {
+    const response = await this.api.post('/api/characters', data)
+    return response.data
+  }
+
+  async getCharacters(): Promise<Character[]> {
+    const response = await this.api.get('/api/characters')
+    return response.data
+  }
+
+  async getCharacter(id: number): Promise<CharacterWithImages> {
+    const response = await this.api.get(`/api/characters/${id}`)
+    return response.data
+  }
+
+  async updateCharacter(id: number, data: Partial<UpdateCharacterRequest>): Promise<Character> {
+    const response = await this.api.put(`/api/characters/${id}`, data)
+    return response.data
+  }
+
+  async deleteCharacter(id: number): Promise<void> {
+    await this.api.delete(`/api/characters/${id}`)
+  }
+
+  // Character image methods
+  async addCharacterImage(characterId: number, data: {
+    image_path: string
+    thumbnail_path?: string
+    prompt_used?: string
+    parameters?: any
+    is_primary?: boolean
+  }): Promise<CharacterImage> {
+    const response = await this.api.post(`/api/characters/${characterId}/images`, data)
+    return response.data
+  }
+
+  async setPrimaryImage(characterId: number, imageId: number): Promise<void> {
+    await this.api.put(`/api/characters/${characterId}/images/${imageId}/primary`)
+  }
+
+  async deleteCharacterImage(imageId: number): Promise<void> {
+    await this.api.delete(`/api/characters/images/${imageId}`)
+  }
+
+  // Generation history
+  async getGenerationHistory(characterId?: number, limit?: number): Promise<GenerationHistory[]> {
+    const response = await this.api.get('/api/generation-history', {
+      params: { character_id: characterId, limit }
+    })
+    return response.data
+  }
+
+  // LoRA models
+  async getLoraModels(): Promise<LoraModel[]> {
+    const response = await this.api.get('/api/lora-models')
+    return response.data
+  }
+
+  // Style presets
+  async getStylePresets(characterId: number): Promise<StylePreset[]> {
+    const response = await this.api.get(`/api/characters/${characterId}/style-presets`)
+    return response.data
+  }
+
+  async addStylePreset(characterId: number, data: {
+    name: string
+    style_prompt?: string
+    parameters?: any
+  }): Promise<StylePreset> {
+    const response = await this.api.post(`/api/characters/${characterId}/style-presets`, data)
     return response.data
   }
 

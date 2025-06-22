@@ -291,6 +291,167 @@ Validate a folder path for use as output directory.
 
 **Note:** This endpoint validates that the path exists and is a directory. If the path doesn't exist, it returns the parent directory or default path.
 
+## Character Management
+
+### List Characters
+
+#### GET /api/characters
+Get all characters.
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "name": "Fantasy Warrior",
+    "description": "A brave warrior from the northern lands",
+    "base_prompt": "A warrior with long silver hair, blue eyes, wearing ornate armor",
+    "negative_prompt": "blurry, low quality",
+    "tags": ["fantasy", "warrior", "armor"],
+    "lora_path": "/media/rese/AL/models/loras/warrior.safetensors",
+    "lora_strength": 0.8,
+    "created_at": "2025-01-22T12:00:00.000Z",
+    "updated_at": "2025-01-22T12:00:00.000Z"
+  }
+]
+```
+
+### Create Character
+
+#### POST /api/characters
+Create a new character.
+
+**Request Body:**
+```json
+{
+  "name": "Fantasy Warrior",
+  "description": "A brave warrior from the northern lands",
+  "base_prompt": "A warrior with long silver hair, blue eyes, wearing ornate armor",
+  "negative_prompt": "blurry, low quality",
+  "tags": ["fantasy", "warrior", "armor"],
+  "lora_path": "/media/rese/AL/models/loras/warrior.safetensors",
+  "lora_strength": 0.8
+}
+```
+
+### Get Character Details
+
+#### GET /api/characters/:id
+Get a character with all associated images.
+
+**Response:**
+```json
+{
+  "id": 1,
+  "name": "Fantasy Warrior",
+  "description": "A brave warrior from the northern lands",
+  "base_prompt": "A warrior with long silver hair, blue eyes, wearing ornate armor",
+  "negative_prompt": "blurry, low quality",
+  "tags": ["fantasy", "warrior", "armor"],
+  "lora_path": "/media/rese/AL/models/loras/warrior.safetensors",
+  "lora_strength": 0.8,
+  "created_at": "2025-01-22T12:00:00.000Z",
+  "updated_at": "2025-01-22T12:00:00.000Z",
+  "images": [
+    {
+      "id": 1,
+      "character_id": 1,
+      "image_path": "/media/rese/AL/ComfyUI/output/character_001.png",
+      "thumbnail_path": "/media/rese/AL/ComfyUI/output/thumbs/character_001.png",
+      "prompt_used": "A warrior with long silver hair, blue eyes, in battle stance",
+      "parameters": { "width": 1024, "height": 1024, "steps": 4 },
+      "is_primary": true,
+      "created_at": "2025-01-22T12:00:00.000Z"
+    }
+  ],
+  "primary_image": { ... }
+}
+```
+
+### Update Character
+
+#### PUT /api/characters/:id
+Update an existing character.
+
+**Request Body:** Same as create, all fields optional
+
+### Delete Character
+
+#### DELETE /api/characters/:id
+Delete a character and all associated data.
+
+### Character Images
+
+#### POST /api/characters/:id/images
+Add an image to a character.
+
+**Request Body:**
+```json
+{
+  "image_path": "/media/rese/AL/ComfyUI/output/character_001.png",
+  "thumbnail_path": "/media/rese/AL/ComfyUI/output/thumbs/character_001.png",
+  "prompt_used": "A warrior with long silver hair in battle stance",
+  "parameters": { "width": 1024, "height": 1024 },
+  "is_primary": true
+}
+```
+
+#### PUT /api/characters/:id/images/:imageId/primary
+Set an image as the primary image for a character.
+
+#### DELETE /api/characters/images/:imageId
+Delete a character image.
+
+### Generation History
+
+#### GET /api/generation-history
+Get generation history, optionally filtered by character.
+
+**Query Parameters:**
+- `character_id` (optional) - Filter by character ID
+- `limit` (optional, default: 50) - Number of results
+
+### LoRA Models
+
+#### GET /api/lora-models
+Get all available LoRA models.
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "name": "Fantasy Warrior LoRA",
+    "file_path": "/media/rese/AL/models/loras/warrior.safetensors",
+    "trigger_words": "warrior armor",
+    "description": "LoRA trained on fantasy warrior images",
+    "base_model": "flux",
+    "metadata": {},
+    "created_at": "2025-01-22T12:00:00.000Z"
+  }
+]
+```
+
+### Style Presets
+
+#### GET /api/characters/:id/style-presets
+Get style presets for a character.
+
+#### POST /api/characters/:id/style-presets
+Create a style preset for a character.
+
+**Request Body:**
+```json
+{
+  "name": "Battle Stance",
+  "style_prompt": "dynamic pose, action scene, dramatic lighting",
+  "parameters": {
+    "sampler": "dpmpp_2m",
+    "steps": 6
+  }
+}
+```
+
 ## Error Responses
 
 All endpoints may return error responses in the following format:
@@ -317,4 +478,4 @@ Currently, no rate limiting is implemented. In production, consider adding rate 
 CORS is enabled for the frontend URL specified in `NEXT_PUBLIC_APP_URL` environment variable (default: `http://localhost:3000`).
 
 ---
-Last updated: 2025-01-22
+Last updated: 2025-06-22

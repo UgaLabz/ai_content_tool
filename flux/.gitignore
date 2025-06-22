@@ -13,6 +13,9 @@
 # Production
 /build
 
+# Database
+/data
+
 # Misc
 .DS_Store
 *.pem
@@ -38,7 +41,7 @@ next-env.d.ts
 .idea/
 
 # AI Models (stored at /media/rese/AL)
-/models/
+/models
 
 # Generated images
 /public/generated/

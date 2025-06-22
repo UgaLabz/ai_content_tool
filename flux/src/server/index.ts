@@ -10,6 +10,8 @@ import axios from 'axios'
 import { ComfyUIClient } from './services/comfyui-client'
 import * as fs from 'fs/promises'
 import { existsSync, createReadStream } from 'fs'
+import { initializeDatabase, closeDatabase } from './db/config'
+import { CharacterModel } from './models/character.model'
 
 // Load environment variables
 dotenv.config()
@@ -504,10 +506,185 @@ app.post('/api/browse-folder', async (req, res) => {
   }
 })
 
+// Character API endpoints
+app.post('/api/characters', async (req, res) => {
+  try {
+    const character = await CharacterModel.create(req.body)
+    res.json(character)
+  } catch (error) {
+    console.error('Failed to create character:', error)
+    res.status(500).json({ 
+      error: 'Failed to create character',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+app.get('/api/characters', async (req, res) => {
+  try {
+    const characters = await CharacterModel.findAll()
+    res.json(characters)
+  } catch (error) {
+    console.error('Failed to fetch characters:', error)
+    res.status(500).json({ 
+      error: 'Failed to fetch characters',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+app.get('/api/characters/:id', async (req, res) => {
+  try {
+    const character = await CharacterModel.findByIdWithImages(parseInt(req.params.id))
+    res.json(character)
+  } catch (error) {
+    console.error('Failed to fetch character:', error)
+    res.status(500).json({ 
+      error: 'Failed to fetch character',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+app.put('/api/characters/:id', async (req, res) => {
+  try {
+    const character = await CharacterModel.update(parseInt(req.params.id), req.body)
+    res.json(character)
+  } catch (error) {
+    console.error('Failed to update character:', error)
+    res.status(500).json({ 
+      error: 'Failed to update character',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+app.delete('/api/characters/:id', async (req, res) => {
+  try {
+    await CharacterModel.delete(parseInt(req.params.id))
+    res.json({ success: true })
+  } catch (error) {
+    console.error('Failed to delete character:', error)
+    res.status(500).json({ 
+      error: 'Failed to delete character',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+// Character image endpoints
+app.post('/api/characters/:id/images', async (req, res) => {
+  try {
+    const { image_path, thumbnail_path, prompt_used, parameters, is_primary } = req.body
+    const image = await CharacterModel.addImage(
+      parseInt(req.params.id),
+      image_path,
+      { thumbnail_path, prompt_used, parameters, is_primary }
+    )
+    res.json(image)
+  } catch (error) {
+    console.error('Failed to add character image:', error)
+    res.status(500).json({ 
+      error: 'Failed to add character image',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+app.put('/api/characters/:id/images/:imageId/primary', async (req, res) => {
+  try {
+    await CharacterModel.setPrimaryImage(
+      parseInt(req.params.id),
+      parseInt(req.params.imageId)
+    )
+    res.json({ success: true })
+  } catch (error) {
+    console.error('Failed to set primary image:', error)
+    res.status(500).json({ 
+      error: 'Failed to set primary image',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+app.delete('/api/characters/images/:imageId', async (req, res) => {
+  try {
+    await CharacterModel.deleteImage(parseInt(req.params.imageId))
+    res.json({ success: true })
+  } catch (error) {
+    console.error('Failed to delete character image:', error)
+    res.status(500).json({ 
+      error: 'Failed to delete character image',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+// Generation history endpoint
+app.get('/api/generation-history', async (req, res) => {
+  try {
+    const characterId = req.query.character_id ? parseInt(req.query.character_id as string) : undefined
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 50
+    const history = await CharacterModel.getHistory(characterId, limit)
+    res.json(history)
+  } catch (error) {
+    console.error('Failed to fetch generation history:', error)
+    res.status(500).json({ 
+      error: 'Failed to fetch generation history',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+// LoRA models endpoint
+app.get('/api/lora-models', async (req, res) => {
+  try {
+    const models = await CharacterModel.getLoraModels()
+    res.json(models)
+  } catch (error) {
+    console.error('Failed to fetch LoRA models:', error)
+    res.status(500).json({ 
+      error: 'Failed to fetch LoRA models',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+// Style presets endpoints
+app.get('/api/characters/:id/style-presets', async (req, res) => {
+  try {
+    const presets = await CharacterModel.getStylePresets(parseInt(req.params.id))
+    res.json(presets)
+  } catch (error) {
+    console.error('Failed to fetch style presets:', error)
+    res.status(500).json({ 
+      error: 'Failed to fetch style presets',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+app.post('/api/characters/:id/style-presets', async (req, res) => {
+  try {
+    const preset = await CharacterModel.addStylePreset(parseInt(req.params.id), req.body)
+    res.json(preset)
+  } catch (error) {
+    console.error('Failed to add style preset:', error)
+    res.status(500).json({ 
+      error: 'Failed to add style preset',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
 // Start server
 const PORT = process.env.SERVER_PORT || 3001
 
 async function start() {
+  // Initialize database
+  await initializeDatabase()
+  
+  // Initialize ComfyUI connection
   await initializeComfyUI()
   
   httpServer.listen(PORT, () => {
@@ -516,13 +693,14 @@ async function start() {
 }
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully...')
   
-  httpServer.close(() => {
+  httpServer.close(async () => {
     if (comfyClient) {
       comfyClient.disconnect()
     }
+    await closeDatabase()
     process.exit(0)
   })
 })
