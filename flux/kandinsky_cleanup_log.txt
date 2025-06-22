@@ -1,0 +1,31 @@
+=== Kandinsky Models Cleanup Log ===
+Date: Sun Jun 22 10:30:10 AM MDT 2025
+
+Directories to remove:
+54G	/media/rese/AL/models/kandinsky
+27G	/media/rese/AL/models/huggingface_cache
+
+Total files: 48
+
+=== CLEANUP COMPLETED ===
+
+Actions taken:
+1. Removed /media/rese/AL/models/kandinsky/ (54GB)
+2. Removed /media/rese/AL/models/huggingface_cache/ (27GB)
+3. Removed /media/rese/AL/ComfyUI/custom_nodes/comfyui-kandinsky22/
+4. Removed /media/rese/AL/ComfyUI/custom_nodes/ComfyUI-Diffusers/
+5. Updated /media/rese/AL/ComfyUI/extra_model_paths.yaml to remove kandinsky paths
+
+Total space freed: ~81GB
+
+Remaining models:
+- Flux models: 28GB (kept as requested)
+- All Flux models verified intact and working
+
+Disk space after cleanup:
+/dev/sda1       916G   49G  821G   6% /media/rese/AL
+
+Notes:
+- No LLM models were found to preserve
+- All Kandinsky-related integrations have been removed
+- ComfyUI is now configured for Flux-only operation
