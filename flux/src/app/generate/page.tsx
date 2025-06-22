@@ -9,6 +9,7 @@ import { GenerationProgress } from '@/components/generation/generation-progress'
 import { ImageGallery } from '@/components/gallery/image-gallery'
 import { ExistingImages } from '@/components/gallery/existing-images'
 import { GenerationQueue } from '@/components/generation/generation-queue'
+import { ReferenceImageUpload } from '@/components/generation/reference-image-upload'
 import { useGenerationStore } from '@/lib/store'
 import { apiClient } from '@/lib/api-client'
 import { useToast } from '@/hooks/use-toast'
@@ -40,6 +41,8 @@ function GenerateContent() {
     outputPath: '',
     filenameOverride: ''
   })
+  
+  const [referenceImageSettings, setReferenceImageSettings] = useState<any>(null)
 
   // Load character if specified
   useEffect(() => {
@@ -103,7 +106,8 @@ function GenerateContent() {
         prompt,
         ...parameters,
         ...outputSettings,
-        characterId: selectedCharacter?.id
+        characterId: selectedCharacter?.id,
+        referenceImage: referenceImageSettings
       })
       
       if (response.success) {
@@ -166,6 +170,10 @@ function GenerateContent() {
         <ParameterControls 
           parameters={parameters} 
           onChange={setParameters}
+          disabled={useGenerationStore.getState().isGenerating}
+        />
+        <ReferenceImageUpload 
+          onChange={setReferenceImageSettings}
           disabled={useGenerationStore.getState().isGenerating}
         />
       </div>

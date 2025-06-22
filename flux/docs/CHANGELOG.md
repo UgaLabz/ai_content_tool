@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2025-06-22
+
+### Added
+- **IP-Adapter Integration (Phase 3)**
+  - IP-Adapter workflow template for image-guided generation
+  - Reference image upload component with mode selection
+  - Support for style transfer, character reference, and composition modes
+  - Adjustable strength and application range (start/end percentages)
+  - Character image selector for using character references
+  - Image upload endpoint with validation
+
+### Changed
+- ComfyUI client now supports three workflow types (standard, LoRA, IP-Adapter)
+- Generate endpoint handles reference image configuration
+- Generate page includes reference image upload interface
+- Workflow selection is now based on features used (prioritizes IP-Adapter)
+
+### Technical
+- IP-Adapter workflow uses CLIP vision encoder for image understanding
+- Support for different reference modes with prompt adjustments
+- Proper image path handling for ComfyUI compatibility
+
 ## [0.7.0] - 2025-06-22
 
 ### Added

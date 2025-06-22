@@ -24,6 +24,14 @@ export interface GenerationParams {
   outputPath?: string
   filenameOverride?: string
   characterId?: number
+  referenceImage?: {
+    enabled: boolean
+    imagePath: string
+    strength: number
+    mode: 'style' | 'character' | 'composition'
+    startPercent: number
+    endPercent: number
+  }
 }
 
 export interface GenerationResponse {

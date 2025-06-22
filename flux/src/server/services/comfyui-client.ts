@@ -26,6 +26,12 @@ interface WorkflowParams {
     strength: number
   }
   negativePrompt?: string
+  ipAdapter?: {
+    imagePath: string
+    strength: number
+    startPercent?: number
+    endPercent?: number
+  }
 }
 
 interface QueueItem {
@@ -50,6 +56,7 @@ export class ComfyUIClient {
   private queue: Map<string, QueueItem> = new Map()
   private workflowTemplate: any
   private loraWorkflowTemplate: any
+  private ipAdapterWorkflowTemplate: any
   private comfyOutputPath: string = process.env.COMFYUI_OUTPUT_PATH || '/media/rese/AL/ComfyUI/output'
 
   constructor(config: ComfyUIConfig) {
@@ -73,6 +80,14 @@ export class ComfyUIClient {
     )
     const loraWorkflowContent = await fs.readFile(loraWorkflowPath, 'utf-8')
     this.loraWorkflowTemplate = loraWorkflowContent
+
+    // Load IP-Adapter workflow template
+    const ipAdapterWorkflowPath = path.join(
+      process.cwd(),
+      'src/server/workflows/flux-ip-adapter-workflow-template.json'
+    )
+    const ipAdapterWorkflowContent = await fs.readFile(ipAdapterWorkflowPath, 'utf-8')
+    this.ipAdapterWorkflowTemplate = ipAdapterWorkflowContent
 
     // Connect WebSocket
     await this.connectWebSocket()
@@ -247,8 +262,13 @@ export class ComfyUIClient {
   }
 
   private prepareWorkflow(params: WorkflowParams): any {
-    // Choose template based on whether LoRA is used
-    const template = params.lora ? this.loraWorkflowTemplate : this.workflowTemplate
+    // Choose template based on features used
+    let template = this.workflowTemplate
+    if (params.ipAdapter) {
+      template = this.ipAdapterWorkflowTemplate
+    } else if (params.lora) {
+      template = this.loraWorkflowTemplate
+    }
     
     // First parse the template
     const workflow = JSON.parse(template)
@@ -256,7 +276,23 @@ export class ComfyUIClient {
     // Extract the nodes object if it exists (our template format)
     const nodes = workflow.nodes || workflow
     
-    if (params.lora) {
+    if (params.ipAdapter) {
+      // IP-Adapter workflow node IDs
+      nodes["6"].inputs.text = params.prompt // positive prompt
+      nodes["9"].inputs.text = params.negativePrompt || '' // negative prompt
+      nodes["3"].inputs.steps = params.steps || 4
+      nodes["3"].inputs.scheduler = params.scheduler || 'simple'
+      nodes["3"].inputs.sampler_name = params.sampler || 'euler'
+      nodes["3"].inputs.seed = params.seed || Math.floor(Math.random() * 1000000)
+      nodes["5"].inputs.width = params.width || 1024
+      nodes["5"].inputs.height = params.height || 1024
+      // For IP-Adapter, we need the full path to the uploaded image
+      const uploadPath = path.join(process.cwd(), 'public/uploads', params.ipAdapter.imagePath)
+      nodes["12"].inputs.image = uploadPath
+      nodes["20"].inputs.weight = params.ipAdapter.strength
+      nodes["20"].inputs.start_at = params.ipAdapter.startPercent || 0.0
+      nodes["20"].inputs.end_at = params.ipAdapter.endPercent || 1.0
+    } else if (params.lora) {
       // LoRA workflow node IDs
       nodes["6"].inputs.text = params.prompt // positive prompt
       nodes["9"].inputs.text = params.negativePrompt || '' // negative prompt
@@ -281,7 +317,7 @@ export class ComfyUIClient {
     }
     
     // Handle filename - if custom filename provided, use it; otherwise generate from prompt
-    const saveNodeId = params.lora ? "10" : "9" // Different node ID for LoRA workflow
+    const saveNodeId = params.ipAdapter ? "10" : (params.lora ? "10" : "9") // Different node IDs for different workflows
     if (params.filenameOverride) {
       nodes[saveNodeId].inputs.filename_prefix = params.filenameOverride
     } else {

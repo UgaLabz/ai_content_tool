@@ -1,0 +1,158 @@
+{
+  "3": {
+    "inputs": {
+      "seed": "${seed}",
+      "steps": ${steps},
+      "cfg": 1.0,
+      "sampler_name": "${sampler}",
+      "scheduler": "${scheduler}",
+      "denoise": 1,
+      "model": ["20", 0],
+      "positive": ["6", 0],
+      "negative": ["9", 0],
+      "latent_image": ["5", 0]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "4": {
+    "inputs": {
+      "ckpt_name": "flux/flux1-schnell.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Load Checkpoint"
+    }
+  },
+  "5": {
+    "inputs": {
+      "width": ${width},
+      "height": ${height},
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "Empty Latent Image"
+    }
+  },
+  "6": {
+    "inputs": {
+      "text": "${positive_prompt}",
+      "clip": ["11", 1]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Positive Prompt"
+    }
+  },
+  "8": {
+    "inputs": {
+      "samples": ["3", 0],
+      "vae": ["4", 2]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "9": {
+    "inputs": {
+      "text": "${negative_prompt}",
+      "clip": ["11", 1]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Negative Prompt"
+    }
+  },
+  "10": {
+    "inputs": {
+      "filename_prefix": "${filename_prefix}",
+      "images": ["8", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "11": {
+    "inputs": {
+      "clip_name": "clip_l.safetensors",
+      "type": "flux"
+    },
+    "class_type": "DualCLIPLoader",
+    "_meta": {
+      "title": "DualCLIPLoader"
+    }
+  },
+  "12": {
+    "inputs": {
+      "image": "${reference_image}",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Reference Image"
+    }
+  },
+  "13": {
+    "inputs": {
+      "ipadapter_file": "flux-ip-adapter.safetensors"
+    },
+    "class_type": "IPAdapterModelLoader",
+    "_meta": {
+      "title": "Load IP-Adapter"
+    }
+  },
+  "14": {
+    "inputs": {
+      "clip_name": "clip_vision_g.safetensors"
+    },
+    "class_type": "CLIPVisionLoader",
+    "_meta": {
+      "title": "Load CLIP Vision"
+    }
+  },
+  "15": {
+    "inputs": {
+      "interpolation": "LANCZOS",
+      "crop_position": "center",
+      "sharpening": 0.0,
+      "image": ["12", 0]
+    },
+    "class_type": "PrepImageForClipVision",
+    "_meta": {
+      "title": "Prep Image"
+    }
+  },
+  "16": {
+    "inputs": {
+      "clip_vision": ["14", 0],
+      "image": ["15", 0]
+    },
+    "class_type": "CLIPVisionEncode",
+    "_meta": {
+      "title": "Encode Image"
+    }
+  },
+  "20": {
+    "inputs": {
+      "weight": ${ip_adapter_strength},
+      "weight_type": "linear",
+      "combine_embeds": "concat",
+      "start_at": ${start_percent},
+      "end_at": ${end_percent},
+      "embeds_scaling": "V only",
+      "model": ["4", 0],
+      "ipadapter": ["13", 0],
+      "image": ["15", 0],
+      "clip_vision": ["16", 0]
+    },
+    "class_type": "IPAdapterApply",
+    "_meta": {
+      "title": "Apply IP-Adapter"
+    }
+  }
+}

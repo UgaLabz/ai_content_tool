@@ -131,6 +131,7 @@ app.post('/api/generate', async (req, res) => {
       outputPath,
       filenameOverride,
       characterId,
+      referenceImage,
     } = req.body
 
     if (!prompt) {
@@ -148,6 +149,24 @@ app.post('/api/generate', async (req, res) => {
     let finalPrompt = prompt
     let negativePrompt = ''
     let loraConfig = undefined
+    let ipAdapterConfig = undefined
+
+    // Handle reference image configuration
+    if (referenceImage && referenceImage.enabled && referenceImage.imagePath) {
+      ipAdapterConfig = {
+        imagePath: referenceImage.imagePath,
+        strength: referenceImage.strength || 0.85,
+        startPercent: (referenceImage.startPercent || 0) / 100,
+        endPercent: (referenceImage.endPercent || 100) / 100
+      }
+      
+      // Adjust prompt based on reference mode
+      if (referenceImage.mode === 'style') {
+        finalPrompt = `${prompt}, in the style of the reference image`
+      } else if (referenceImage.mode === 'character') {
+        finalPrompt = `${prompt}, featuring the character from the reference image`
+      }
+    }
 
     // If character is specified, load character data
     if (characterId) {
@@ -194,6 +213,7 @@ app.post('/api/generate', async (req, res) => {
       filenameOverride,
       lora: loraConfig,
       negativePrompt,
+      ipAdapter: ipAdapterConfig,
     })
 
     // Emit completion event
