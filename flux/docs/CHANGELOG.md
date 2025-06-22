@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2025-06-22
+
+### Added
+- **Character Consistency Planning**
+  - Comprehensive technical plan for character consistency features
+  - Detailed development checklist with 4 implementation phases
+  - LoRA training pipeline architecture design
+  - IP-Adapter integration planning for image prompting
+  - Database schema for character management
+  - ComfyUI workflow templates for character generation
+
+### Fixed
+- **Security Issues**
+  - Replaced hardcoded Hugging Face token with environment variable
+  - Updated download_models_auth.sh to use HUGGING_FACE_TOKEN env var
+  
+### Changed
+- **Repository Structure**
+  - Added comprehensive .gitignore at repository root level
+  - Fixed issue with 10k+ tracked files in git
+  - Created clean branch (todd-clean) to resolve git history issues
+
+### Improved
+- **UI Enhancements**
+  - All UI components now have comprehensive tooltips
+  - Removed "Try these suggestions" section from prompt input
+  - Fixed image URLs to use full server paths
+
 ## [0.4.2] - 2025-06-22
 
 ### Fixed
