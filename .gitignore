@@ -1,0 +1,141 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Testing
+coverage/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+
+# Production
+build/
+dist/
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Local env files
+.env*.local
+.env
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+
+# AI Models
+models/
+*.safetensors
+*.ckpt
+*.pth
+*.bin
+
+# Generated files
+generated/
+uploads/
+outputs/
+
+# ComfyUI specific
+comfyui/
+ComfyUI/output/
+ComfyUI/input/
+ComfyUI/temp/
+
+# Claude specific
+.claude/
+claude_desktop_config.json
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+.cache/
+
+# OS files
+Thumbs.db
+.directory
+
+# Patches and backups
+*.patch
+*.bak
+*.backup
+
+# Video files
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Large data files
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+*_log.txt
+
+# Build artifacts
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Documentation build
+docs/_build/
+docs/.sphinx/
+
+# Temporary directories
+tmp/
+temp/
+
+# MCP config
+.mcp.json
+
+# Hugging Face cache
+.cache/huggingface/
+huggingface_cache/
+
+# Model weights and datasets (stored externally)
+/media/rese/AL/models/
+/media/rese/AL/ComfyUI/models/
+kandinsky/
+diffusion_models/
