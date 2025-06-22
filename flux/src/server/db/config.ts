@@ -92,6 +92,38 @@ export async function initializeDatabase() {
       })
     }
 
+    // LoRA training jobs table
+    if (!(await db.schema.hasTable('lora_training_jobs'))) {
+      await db.schema.createTable('lora_training_jobs', (table) => {
+        table.increments('id').primary()
+        table.integer('character_id').references('id').inTable('characters').onDelete('CASCADE')
+        table.string('job_id').notNullable().unique()
+        table.string('status').notNullable() // pending, preparing, training, completed, failed
+        table.json('config').notNullable() // Training configuration
+        table.json('dataset_info') // Dataset metadata
+        table.string('output_path') // Path to trained LoRA
+        table.text('error_message')
+        table.float('progress').defaultTo(0)
+        table.text('training_log')
+        table.timestamp('started_at')
+        table.timestamp('completed_at')
+        table.timestamps(true, true)
+      })
+    }
+
+    // Training dataset images table
+    if (!(await db.schema.hasTable('training_dataset_images'))) {
+      await db.schema.createTable('training_dataset_images', (table) => {
+        table.increments('id').primary()
+        table.integer('job_id').references('id').inTable('lora_training_jobs').onDelete('CASCADE')
+        table.string('image_path').notNullable()
+        table.text('caption').notNullable()
+        table.json('preprocessing') // crop info, background removal, etc
+        table.boolean('is_validated').defaultTo(false)
+        table.timestamps(true, true)
+      })
+    }
+
     console.log('Database initialized successfully')
   } catch (error) {
     console.error('Database initialization error:', error)

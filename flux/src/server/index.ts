@@ -778,6 +778,67 @@ app.post('/api/characters/:id/style-presets', async (req, res) => {
   }
 })
 
+// Training API endpoints
+app.post('/api/training/jobs', async (req, res) => {
+  try {
+    const { TrainingService } = await import('./services/training-service')
+    const job = await TrainingService.createTrainingJob(req.body)
+    res.json(job)
+  } catch (error) {
+    console.error('Failed to create training job:', error)
+    res.status(500).json({ 
+      error: 'Failed to create training job',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+app.get('/api/training/jobs', async (req, res) => {
+  try {
+    const { TrainingService } = await import('./services/training-service')
+    const characterId = req.query.character_id ? parseInt(req.query.character_id as string) : undefined
+    const jobs = await TrainingService.getTrainingJobs(characterId)
+    res.json(jobs)
+  } catch (error) {
+    console.error('Failed to fetch training jobs:', error)
+    res.status(500).json({ 
+      error: 'Failed to fetch training jobs',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+app.get('/api/training/jobs/:jobId', async (req, res) => {
+  try {
+    const { TrainingService } = await import('./services/training-service')
+    const job = await TrainingService.getTrainingJob(req.params.jobId)
+    res.json(job)
+  } catch (error) {
+    console.error('Failed to fetch training job:', error)
+    res.status(500).json({ 
+      error: 'Failed to fetch training job',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+app.post('/api/training/jobs/:jobId/cancel', async (req, res) => {
+  try {
+    const { TrainingService } = await import('./services/training-service')
+    await TrainingService.cancelTrainingJob(req.params.jobId)
+    res.json({ success: true })
+  } catch (error) {
+    console.error('Failed to cancel training job:', error)
+    res.status(500).json({ 
+      error: 'Failed to cancel training job',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+// Make io available globally for services
+(global as any).io = io
+
 // Start server
 const PORT = process.env.SERVER_PORT || 3001
 

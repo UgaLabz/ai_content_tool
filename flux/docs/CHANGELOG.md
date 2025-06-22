@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.0] - 2025-06-22
+
+### Added
+- **LoRA Training Pipeline (Phase 4 - Partial)**
+  - Dataset builder interface for preparing training images
+  - Training configuration UI with basic and advanced settings
+  - Database schema for training jobs and dataset management
+  - Training service integration with kohya_ss
+  - Real-time training progress updates via WebSocket
+  - Training dialog integrated into character management
+  - API endpoints for creating and managing training jobs
+  - Support for custom caption editing per image
+  - Training job status tracking and cancellation
+
+### Technical
+- Added `lora_training_jobs` and `training_dataset_images` tables
+- Created comprehensive training configuration options
+- Implemented dataset validation (5-100 images)
+- Socket events for training progress, completion, and errors
+- Training service uses subprocess for kohya_ss integration
+
+### Notes
+- LoRA training requires kohya_ss to be installed at `/media/rese/AL/kohya_ss`
+- Training runs on GPU 0 by default
+- Output LoRAs are saved to `/media/rese/AL/models/loras/trained/{character_id}/`
+
 ## [0.8.0] - 2025-06-22
 
 ### Added

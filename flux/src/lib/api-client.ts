@@ -10,6 +10,11 @@ import type {
   LoraModel,
   StylePreset
 } from '@/server/types/character'
+import type {
+  CreateTrainingJobRequest,
+  LoraTrainingJob,
+  TrainingProgress
+} from '@/server/types/training'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -273,6 +278,33 @@ class APIClient {
     return response.data
   }
 
+  // LoRA Training
+  async createTrainingJob(data: CreateTrainingJobRequest): Promise<LoraTrainingJob> {
+    const response = await this.api.post('/api/training/jobs', data)
+    return response.data
+  }
+
+  async getTrainingJobs(characterId?: number): Promise<LoraTrainingJob[]> {
+    const response = await this.api.get('/api/training/jobs', {
+      params: { character_id: characterId }
+    })
+    return response.data
+  }
+
+  async getTrainingJob(jobId: string): Promise<LoraTrainingJob> {
+    const response = await this.api.get(`/api/training/jobs/${jobId}`)
+    return response.data
+  }
+
+  async cancelTrainingJob(jobId: string): Promise<void> {
+    await this.api.post(`/api/training/jobs/${jobId}/cancel`)
+  }
+
+  async scanLoraModels(): Promise<LoraModel[]> {
+    const response = await this.api.post('/api/lora-models/scan')
+    return response.data.models
+  }
+
   // Socket event listeners
   onGenerationStart(callback: (data: { id: string }) => void) {
     this.socket?.on('generation:start', callback)
@@ -292,6 +324,19 @@ class APIClient {
 
   onGenerationCancelled(callback: (data: { id: string }) => void) {
     this.socket?.on('generation:cancelled', callback)
+  }
+
+  // Training event listeners
+  onTrainingProgress(callback: (data: TrainingProgress) => void) {
+    this.socket?.on('training:progress', callback)
+  }
+
+  onTrainingComplete(callback: (data: { job_id: string; output_path: string }) => void) {
+    this.socket?.on('training:complete', callback)
+  }
+
+  onTrainingError(callback: (data: { job_id: string; error: string }) => void) {
+    this.socket?.on('training:error', callback)
   }
 
   // Remove socket listeners

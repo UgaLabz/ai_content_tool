@@ -10,9 +10,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { Plus, Edit2, Trash2, Image, Info } from 'lucide-react'
+import { Plus, Edit2, Trash2, Image, Info, Wand2 } from 'lucide-react'
 import { apiClient } from '@/lib/api-client'
 import { useToast } from '@/hooks/use-toast'
+import { TrainingDialog } from './training-dialog'
 import type { Character } from '@/server/types/character'
 
 interface CharacterListProps {
@@ -36,6 +37,7 @@ export function CharacterList({
 }: CharacterListProps) {
   const [characters, setCharacters] = useState<Character[]>([])
   const [loading, setLoading] = useState(true)
+  const [trainingCharacter, setTrainingCharacter] = useState<Character | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -196,6 +198,25 @@ export function CharacterList({
                             className="h-8 w-8"
                             onClick={(e) => {
                               e.stopPropagation()
+                              setTrainingCharacter(character)
+                            }}
+                          >
+                            <Wand2 className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Train LoRA model for this character</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={(e) => {
+                              e.stopPropagation()
                               // TODO: Implement edit functionality
                               toast({
                                 title: "Edit character",
@@ -234,6 +255,14 @@ export function CharacterList({
           )}
         </CardContent>
       </Card>
+      
+      {trainingCharacter && (
+        <TrainingDialog
+          open={!!trainingCharacter}
+          onOpenChange={(open) => !open && setTrainingCharacter(null)}
+          character={trainingCharacter}
+        />
+      )}
     </TooltipProvider>
   )
 }
