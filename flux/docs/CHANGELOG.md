@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2025-06-22
+
+### Added
+- **Character Management System (Phase 1)**
+  - SQLite database with comprehensive schema for character data
+  - Full CRUD API endpoints for character management
+  - Character list UI with create, edit, and delete functionality
+  - Character creation dialog with detailed form fields
+  - Support for LoRA model paths and strength settings
+  - Character tagging system for organization
+  - Primary image selection for characters
+  - Generation history tracking per character
+  - Style preset support for characters
+  - Navigation menu with Characters section
+
+### Changed
+- Updated main layout with navigation between Generate and Characters pages
+- Enhanced API client with character management methods
+- Fixed .gitignore to properly exclude AI model files but not source code models
+
+### Technical
+- Integrated Knex.js for database management
+- Added SQLite3 for local data persistence
+- Created comprehensive TypeScript types for character system
+- Implemented proper database initialization and cleanup
+
 ## [0.5.0] - 2025-06-22
 
 ### Added
