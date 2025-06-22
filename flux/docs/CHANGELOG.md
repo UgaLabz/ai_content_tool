@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.0] - 2025-06-22
+
+### Added
+- **Character Image Gallery System**
+  - Comprehensive character detail view with image management
+  - Multi-image upload dialog with drag-and-drop support
+  - Grid and list view modes for character images
+  - Primary image selection functionality
+  - Full-size image viewer with metadata display
+  - Image deletion with confirmation
+  - Generation history display for each character
+  - View details button in character list
+
+### Changed
+- Character page now supports detail view navigation
+- Character images are properly displayed with thumbnails
+- Added tooltips for all image gallery actions
+
+### Technical
+- Created CharacterDetail, CharacterImageGrid, and ImageUploadDialog components
+- Added GenerationHistoryComponent to show past generations
+- Implemented proper image URL handling for uploaded files
+- Support for up to 10MB image uploads with validation
+
 ## [0.9.0] - 2025-06-22
 
 ### Added

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { MainLayout } from '@/components/layout/main-layout'
 import { CharacterList } from '@/components/characters/character-list'
 import { CharacterDialog } from '@/components/characters/character-dialog'
+import { CharacterDetail } from '@/components/characters/character-detail'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
@@ -13,6 +14,7 @@ export default function CharactersPage() {
   const router = useRouter()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedCharacter, setSelectedCharacter] = useState<Character | undefined>()
+  const [viewingCharacterId, setViewingCharacterId] = useState<number | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
 
   const handleCreateCharacter = () => {
@@ -25,6 +27,10 @@ export default function CharactersPage() {
     router.push(`/generate?character=${character.id}`)
   }
 
+  const handleViewDetails = (character: Character) => {
+    setViewingCharacterId(character.id)
+  }
+
   const handleSuccess = () => {
     setRefreshKey(prev => prev + 1)
   }
@@ -32,21 +38,32 @@ export default function CharactersPage() {
   return (
     <MainLayout>
       <div className="max-w-7xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Character Management</h1>
-          <p className="text-muted-foreground">
-            Create and manage characters for consistent image generation
-          </p>
-        </div>
+        {viewingCharacterId ? (
+          <CharacterDetail
+            characterId={viewingCharacterId}
+            onBack={() => {
+              setViewingCharacterId(null)
+              setRefreshKey(prev => prev + 1)
+            }}
+          />
+        ) : (
+          <>
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Character Management</h1>
+              <p className="text-muted-foreground">
+                Create and manage characters for consistent image generation
+              </p>
+            </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <CharacterList 
-              key={refreshKey}
-              onSelectCharacter={handleSelectCharacter}
-              onCreateCharacter={handleCreateCharacter}
-            />
-          </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <CharacterList 
+                  key={refreshKey}
+                  onSelectCharacter={handleSelectCharacter}
+                  onCreateCharacter={handleCreateCharacter}
+                  onViewDetails={handleViewDetails}
+                />
+              </div>
 
           <div className="space-y-6">
             <Card>
@@ -84,6 +101,8 @@ export default function CharactersPage() {
             </Card>
           </div>
         </div>
+          </>
+        )}
 
         <CharacterDialog
           open={dialogOpen}

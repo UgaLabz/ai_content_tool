@@ -10,7 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { Plus, Edit2, Trash2, Image, Info, Wand2 } from 'lucide-react'
+import { Plus, Edit2, Trash2, Image, Info, Wand2, Eye } from 'lucide-react'
 import { apiClient } from '@/lib/api-client'
 import { useToast } from '@/hooks/use-toast'
 import { TrainingDialog } from './training-dialog'
@@ -19,6 +19,7 @@ import type { Character } from '@/server/types/character'
 interface CharacterListProps {
   onSelectCharacter: (character: Character) => void
   onCreateCharacter: () => void
+  onViewDetails?: (character: Character) => void
   selectedCharacterId?: number
 }
 
@@ -33,6 +34,7 @@ const tooltips = {
 export function CharacterList({ 
   onSelectCharacter, 
   onCreateCharacter,
+  onViewDetails,
   selectedCharacterId 
 }: CharacterListProps) {
   const [characters, setCharacters] = useState<Character[]>([])
@@ -171,6 +173,27 @@ export function CharacterList({
                     </div>
                     
                     <div className="flex items-center gap-1 ml-4">
+                      {onViewDetails && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onViewDetails(character)
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>View details and images</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                      
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
